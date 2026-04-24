@@ -478,7 +478,11 @@
   font-size: 2rem;
   margin-bottom: 20px;
 }
-
+.lightning img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
 /* PANEL TEXT */
 .panel h3 {
   font-size: 1.6rem;
@@ -731,7 +735,7 @@
     <!-- RIGHT PANEL -->
     <div class="panel static-panel">
       <div class="static-content">
-        <div class="lightning">⚡</div>
+        <div class="lightning"><img src="res/lghtng-ico.png" alt="Lightning Icon"></div>
         <h2>Get up & seize the opportunity.</h2>
       </div>
     </div>
@@ -1306,7 +1310,8 @@
     vision: {
       title: "The Vision",
       text: "We are building experiences that feel alive. Interfaces that breathe. Motion that speaks before words do. This is not decoration — this is communication through interaction.",
-      image: "https://picsum.photos/800/600?vision"
+      image: "https://picsum.photos/800/600?vision",
+      backgroundColor: "#FFD600"
     },
     story: {
       title: "The Story",
