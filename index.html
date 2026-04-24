@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design & Deploy Test</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=Syne:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap');
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --ink: #0d0d0d;
+    --maroon: #7a1a1a;
+    --red: #f01c3a;
+    --cream: #f9f5f0;
+    --muted: #8a7a7a;
+    --card-bg: rgba(255,255,255,0.04);
+    --border: rgba(255,255,255,0.08);
+    --radius: 14px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--cream);
+    color: #1a0a0a;
+    font-family: 'Syne', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* ─────────────────────────────────────────
+     CUSTOM CURSOR — lerp-smoothed via JS
+  ───────────────────────────────────────── */
+  #cursor {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    background: #f01c3a;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    /* No CSS transition — movement handled by rAF lerp in JS */
+    transform: translate(-50%, -50%);
+    will-change: transform, left, top, width, height;
+    transition: width 0.25s cubic-bezier(0.34,1.56,0.64,1),
+                height 0.25s cubic-bezier(0.34,1.56,0.64,1),
+                background 0.2s ease,
+                opacity 0.2s ease;
+  }
+  #cursor.hover {
+    width: 34px;
+    height: 34px;
+    background: #f01c3a;
+    opacity: 0.55;
+  }
+
+  /* ─────────────────────────────────────────
+     HEADER
+  ───────────────────────────────────────── */
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 48px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    background: transparent;
+  }
+
+  /* Logo — supports both PNG img and SVG fallback */
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 0.12em;
+    color: var(--cream);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    user-select: none;
+  }
+  .logo-img {
+    height: 48px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+    flex-shrink: 0;
+  }
+  /* Hide SVG mark when PNG is loaded successfully */
+  .logo-img + .logo-mark { display: none; }
+  /* If PNG fails to load, JS removes .logo-img and shows SVG */
+  .logo-mark {
+    width: 28px;
+    height: 28px;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  /* ── Desktop Nav ── */
+  nav {
+    display: flex;
+    gap: 36px;
+    align-items: center;
+  }
+  nav a {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(26,10,10,0.75);
+    text-decoration: none;
+    position: relative;
+    padding-bottom: 3px;
+    transition: color 0.2s ease;
+  }
+  nav a::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 0; height: 1.5px;
+    background: #f01c3a;
+    transition: width 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  nav a:hover::after { width: 100%; }
+  nav a:hover { color: #1a0a0a; }
+
+  /* ── Hamburger (mobile only) ── */
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: none;
+    cursor: none;
+    padding: 4px;
+    z-index: 1100;
+    position: relative;
+  }
+  .hamburger span {
+    display: block;
+    width: 100%;
+    height: 1.5px;
+    background: var(--cream);
+    border-radius: 2px;
+    transform-origin: center;
+    transition: transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94),
+                opacity   0.25s ease;
+  }
+  .hamburger[aria-expanded="true"] span:nth-child(1) {
+    transform: translateY(6.5px) rotate(45deg);
+  }
+  .hamburger[aria-expanded="true"] span:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  .hamburger[aria-expanded="true"] span:nth-child(3) {
+    transform: translateY(-6.5px) rotate(-45deg);
+  }
+
+  /* ── Mobile Dropdown Panel ── */
+  .mobile-nav {
+    display: none; /* shown on mobile via media query */
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    background: rgba(13,13,13,0.97);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    z-index: 999;
+    padding: 100px 40px 48px;
+    flex-direction: column;
+    gap: 8px;
+    /* Animate */
+    opacity: 0;
+    transform: translateY(-12px);
+    pointer-events: none;
+    transition: opacity 0.35s cubic-bezier(0.25,0.46,0.45,0.94),
+                transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+  }
+  .mobile-nav.open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .mobile-nav a {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(249,245,240,0.8);
+    text-decoration: none;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    transition: color 0.2s ease, padding-left 0.25s cubic-bezier(0.25,0.46,0.45,0.94);
+  }
+  .mobile-nav a:hover {
+    color: #f01c3a;
+    padding-left: 8px;
+  }
+  .mobile-nav-divider {
+    width: 32px; height: 1px;
+    background: #f01c3a;
+    margin-bottom: 16px;
+    opacity: 0.6;
+  }
+
+  /* ─────────────────────────────────────────
+     HERO
+  ───────────────────────────────────────── */
+  #hero {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    background: var(--cream);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  #webgl-canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 0 24px;
+    pointer-events: none;
+    mix-blend-mode: difference;
+    color: #111111;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #ffffff;
+    margin-bottom: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .hero-eyebrow::before, .hero-eyebrow::after {
+    content: '';
+    display: inline-block;
+    width: 24px; height: 1px;
+    background: #ffffff;
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(4rem, 11vw, 10rem);
+    letter-spacing: -0.01em;
+    line-height: 0.92;
+    color: #ffffff;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+  h1 em {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    color: #ffffff;
+    font-size: 0.9em;
+    letter-spacing: 0.01em;
+  }
+
+  .hero-sub {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(1rem, 2.2vw, 1.5rem);
+    color: rgba(255,255,255,0.75);
+    font-style: italic;
+    letter-spacing: 0.01em;
+  }
+
+  .hero-scroll-hint {
+    position: absolute;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(26,10,10,0.45);
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    pointer-events: none;
+  }
+  .scroll-line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, #f01c3a, transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; transform: scaleY(1); }
+    50%       { opacity: 1;   transform: scaleY(1.15); }
+  }
+
+  /* ─────────────────────────────────────────
+     MARQUEE SECTION
+  ───────────────────────────────────────── */
+  .marquee-section {
+    margin-top: -100px;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  .marquee-row {
+    display: flex;
+    overflow: hidden;
+    margin: 20px 0;
+  }
+
+  .track {
+    display: flex;
+    gap: 20px;
+    will-change: transform;
+    /* GPU-composited layer for 60fps */
+  }
+
+  .track img {
+    width: 300px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 12px;
+    /* No layout shift — explicit dimensions */
+    flex-shrink: 0;
+    display: block;
+  }
+
+  /* ─────────────────────────────────────────
+     FOOTER
+  ───────────────────────────────────────── */
+  .footer-strip {
+    background: #080808;
+    color: var(--cream);
+    padding: 28px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .footer-strip .logo { color: var(--cream); }
+  .footer-strip p {
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    color: rgba(249,245,240,0.3);
+    font-family: 'Syne', sans-serif;
+  }
+
+  /* ─────────────────────────────────────────
+     RESPONSIVE
+  ───────────────────────────────────────── */
+  @media (max-width: 768px) {
+    header { padding: 18px 24px; }
+
+    /* Hide desktop nav, show hamburger */
+    nav { display: none; }
+    .hamburger { display: flex; }
+
+    /* Show mobile nav panel (visibility toggled by JS) */
+    .mobile-nav { display: flex; }
+
+    .logo-img { height: 22px; }
+    .logo-mark { width: 22px; height: 22px; }
+
+    .footer-strip {
+      padding: 24px;
+      flex-direction: column;
+      gap: 12px;
+      text-align: center;
+    }
+    .track img { width: 220px; height: 146px; }
+  }
+
+  @media (max-width: 375px) {
+    .track img { width: 180px; height: 120px; }
+  }
+
+  /* Touch devices: restore pointer */
+  @media (hover: none) {
+    body { cursor: auto; }
+    #cursor { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="cursor" aria-hidden="true"></div>
+
+<!-- ── Mobile Nav Panel ── -->
+<nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation" aria-hidden="true">
+  <div class="mobile-nav-divider"></div>
+  <a href="#" tabindex="-1">For Designers</a>
+  <a href="#" tabindex="-1">For Developers</a>
+</nav>
+
+<!-- ─── HEADER ─── -->
+<header>
+  <a href="#" class="logo">
+    <!--
+      PNG logo: set src to your image path.
+      If the image fails to load, JS reveals the SVG fallback below.
+      Example: <img class="logo-img" src="./logo.png" alt="VEKTR Studio">
+    -->
+    <img
+      class="logo-img"
+      src="res/logo.png"
+      alt="Design & Deploy Studio"
+      width="28"
+      height="28"
+      onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';"
+    >
+    <!-- SVG fallback — hidden when PNG loads; shown on error -->
+    <svg class="logo-mark" viewBox="0 0 28 28" fill="none"
+         xmlns="http://www.w3.org/2000/svg" style="display:none;">
+      <polygon points="14,2 26,24 2,24" stroke="#f9f5f0" stroke-width="2" fill="none"/>
+      <line x1="14" y1="2" x2="14" y2="24" stroke="#f01c3a" stroke-width="1.5"/>
+      <line x1="2"  y1="24" x2="26" y2="24" stroke="#f01c3a" stroke-width="1.5"/>
+    </svg>
+  </a>
+
+  <!-- Desktop nav -->
+  <nav aria-label="Main navigation">
+    <a href="#">For Designers</a>
+    <a href="#">For Developers</a>
+  </nav>
+
+  <!-- Mobile hamburger -->
+  <button
+    class="hamburger"
+    id="hamburger"
+    aria-label="Toggle navigation"
+    aria-expanded="false"
+    aria-controls="mobile-nav"
+  >
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+</header>
+
+<!-- ─── HERO ─── -->
+<section id="hero">
+  <canvas id="webgl-canvas"></canvas>
+  <div class="hero-content">
+    <p class="hero-eyebrow">Creative Studio</p>
+    <h1>We design <em>Bold.</em><br>We deploy fast.</h1>
+    <p class="hero-sub">Look at what we have been designing</p>
+  </div>
+  <div class="hero-scroll-hint">
+    <div class="scroll-line"></div>
+    Scroll
+  </div>
+</section>
+
+<!-- ─── MARQUEE ─── -->
+<section class="marquee-section">
+  <div class="marquee-row row1">
+    <div class="track" id="track1">
+      <img src="https://picsum.photos/600/400?1"  alt="Project 1" width="300" height="200" loading="lazy">
+      <img src="https://picsum.photos/600/400?2"  alt="Project 2" width="300" height="200" loading="lazy">
+      <img src="https://picsum.photos/600/400?3"  alt="Project 3" width="300" height="200" loading="lazy">
+      <img src="https://picsum.photos/600/400?4"  alt="Project 4" width="300" height="200" loading="lazy">
+      <img src="https://picsum.photos/600/400?5"  alt="Project 5" width="300" height="200" loading="lazy">
+      <img src="https://picsum.photos/600/400?1"  alt="Project 1" width="300" height="200" loading="lazy">
+      <img src="https://picsum.photos/600/400?2"  alt="Project 2" width="300" height="200" loading="lazy">
+      <img src="https://picsum.photos/600/400?3"  alt="Project 3" width="300" height="200" loading="lazy">
+      <img src="https://picsum.photos/600/400?4"  alt="Project 4" width="300" height="200" loading="lazy">
+      <img src="https://picsum.photos/600/400?5"  alt="Project 5" width="300" height="200" loading="lazy">
+    </div>
+  </div>
+
+  <div class="marquee-row row2">
+    <div class="track" id="track2">
+      <img src="https://picsum.photos/600/400?6"  alt="Project 6"  width="300" height="200" loading="lazy">
+      <img src="https://picsum.photos/600/400?7"  alt="Project 7"  width="300" height="200" loading="lazy">
+      <img src="https://picsum.photos/600/400?8"  alt="Project 8"  width="300" height="200" loading="lazy">
+      <img src="https://picsum.photos/600/400?9"  alt="Project 9"  width="300" height="200" loading="lazy">
+      <img src="https://picsum.photos/600/400?10" alt="Project 10" width="300" height="200" loading="lazy">
+      <img src="https://picsum.photos/600/400?6"  alt="Project 6"  width="300" height="200" loading="lazy">
+      <img src="https://picsum.photos/600/400?7"  alt="Project 7"  width="300" height="200" loading="lazy">
+      <img src="https://picsum.photos/600/400?8"  alt="Project 8"  width="300" height="200" loading="lazy">
+      <img src="https://picsum.photos/600/400?9"  alt="Project 9"  width="300" height="200" loading="lazy">
+      <img src="https://picsum.photos/600/400?10" alt="Project 10" width="300" height="200" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer class="footer-strip">
+  <a href="#" class="logo" style="font-size:1.2rem;">
+    <img
+      class="logo-img"
+      src="./logo.png"
+      alt="VEKTR Studio"
+      width="22"
+      height="22"
+      onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';"
+    >
+    <svg width="22" height="22" viewBox="0 0 28 28" fill="none" style="display:none;">
+      <polygon points="14,2 26,24 2,24" stroke="#f9f5f0" stroke-width="2" fill="none"/>
+      <line x1="14" y1="2" x2="14" y2="24" stroke="#c0392b" stroke-width="1.5"/>
+      <line x1="2"  y1="24" x2="26" y2="24" stroke="#c0392b" stroke-width="1.5"/>
+    </svg>
+    VEKTR
+  </a>
+  <p>© 2025 VEKTR Studio. All rights reserved.</p>
+</footer>
+
+<script>
+'use strict';
+ 
+/* ════════════════════════════════════════════════════════════════
+   1. CURSOR — Lerp-smoothed, rAF-driven, scale easing
+════════════════════════════════════════════════════════════════ */
+(function initCursor() {
+  const cursor = document.getElementById('cursor');
+  if (!cursor) return;
+ 
+  // Raw mouse position (updated instantly on move)
+  let rawX = -200, rawY = -200;
+  // Smoothed position (lerped in rAF)
+  let curX = -200, curY = -200;
+ 
+  const LERP_FACTOR = 0.12; // 0.08–0.15: lower = more lag/inertia
+ 
+  document.addEventListener('mousemove', e => {
+    rawX = e.clientX;
+    rawY = e.clientY;
+  });
+ 
+  // Hover state for interactive elements
+  document.querySelectorAll('a, button, .project-card').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+  });
+ 
+  function tickCursor() {
+    // Lerp toward raw position — creates smooth inertia
+    curX += (rawX - curX) * LERP_FACTOR;
+    curY += (rawY - curY) * LERP_FACTOR;
+ 
+    cursor.style.left = curX + 'px';
+    cursor.style.top  = curY + 'px';
+ 
+    requestAnimationFrame(tickCursor);
+  }
+  requestAnimationFrame(tickCursor);
+})();
+ 
+ 
+/* ════════════════════════════════════════════════════════════════
+   2. MOBILE NAV — Hamburger + dropdown with a11y
+════════════════════════════════════════════════════════════════ */
+(function initMobileNav() {
+  const hamburger = document.getElementById('hamburger');
+  const mobileNav = document.getElementById('mobile-nav');
+  if (!hamburger || !mobileNav) return;
+ 
+  let isOpen = false;
+ 
+  function openNav() {
+    isOpen = true;
+    hamburger.setAttribute('aria-expanded', 'true');
+    mobileNav.classList.add('open');
+    mobileNav.setAttribute('aria-hidden', 'false');
+    // Make links focusable
+    mobileNav.querySelectorAll('a').forEach(a => a.removeAttribute('tabindex'));
+    document.body.style.overflow = 'hidden';
+  }
+ 
+  function closeNav() {
+    isOpen = false;
+    hamburger.setAttribute('aria-expanded', 'false');
+    mobileNav.classList.remove('open');
+    mobileNav.setAttribute('aria-hidden', 'true');
+    mobileNav.querySelectorAll('a').forEach(a => a.setAttribute('tabindex', '-1'));
+    document.body.style.overflow = '';
+  }
+ 
+  hamburger.addEventListener('click', () => isOpen ? closeNav() : openNav());
+ 
+  // Close on outside click
+  document.addEventListener('click', e => {
+    if (isOpen && !mobileNav.contains(e.target) && !hamburger.contains(e.target)) {
+      closeNav();
+    }
+  });
+ 
+  // Close on link click
+  mobileNav.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', closeNav);
+  });
+ 
+  // Close on Escape
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && isOpen) closeNav();
+  });
+})();
+ 
+ 
+/* ════════════════════════════════════════════════════════════════
+   3. MARQUEE — Scroll-velocity driven with lerp easing
+════════════════════════════════════════════════════════════════ */
+(function initMarquee() {
+  const track1 = document.getElementById('track1');
+  const track2 = document.getElementById('track2');
+  if (!track1 || !track2) return;
+ 
+  let currentPos1 = 0; // actual rendered position (lerped)
+  let currentPos2 = 0;
+  let targetPos1  = 0; // target driven by scroll
+  let targetPos2  = 0;
+ 
+  let lastScrollY = window.scrollY;
+  let scrollVel   = 0; // raw scroll delta per frame
+  let smoothVel   = 0; // lerped velocity shown to marquee
+ 
+  const SCROLL_MULT  = 0.35;  // how much scroll drives movement
+  const VEL_LERP     = 0.09;  // smoothing on velocity (0.08–0.12 as specified)
+  const POS_LERP     = 0.10;  // smoothing on position
+ 
+  window.addEventListener('scroll', () => {
+    const sy  = window.scrollY;
+    scrollVel = (sy - lastScrollY) * SCROLL_MULT;
+    lastScrollY = sy;
+  }, { passive: true });
+ 
+  function tickMarquee() {
+    // Smooth velocity with lerp
+    smoothVel += (scrollVel - smoothVel) * VEL_LERP;
+    scrollVel *= 0.80; // decay raw vel between frames
+ 
+    // Drive targets
+    targetPos1 -= smoothVel;
+    targetPos2 += smoothVel;
+ 
+    // Lerp positions toward targets — natural ease in/out
+    currentPos1 += (targetPos1 - currentPos1) * POS_LERP;
+    currentPos2 += (targetPos2 - currentPos2) * POS_LERP;
+ 
+    track1.style.transform = `translateX(${currentPos1}px)`;
+    track2.style.transform = `translateX(${currentPos2}px)`;
+ 
+    requestAnimationFrame(tickMarquee);
+  }
+  requestAnimationFrame(tickMarquee);
+})();
+ 
+ 
+/* ════════════════════════════════════════════════════════════════
+   4. WEBGL FLUID INK — Controlled, premium, heavy-feel ink
+════════════════════════════════════════════════════════════════ */
+(function initFluid() {
+  const canvas = document.getElementById('webgl-canvas');
+  const hero   = document.getElementById('hero');
+  if (!canvas || !hero) return;
+ 
+  // ── WebGL context ──
+  const gl =
+    canvas.getContext('webgl2',  { alpha: true, antialias: false, powerPreference: 'high-performance' }) ||
+    canvas.getContext('webgl',   { alpha: true, antialias: false, powerPreference: 'high-performance' });
+ 
+  if (!gl) {
+    // Graceful degradation: hide canvas, hero still shows
+    canvas.style.display = 'none';
+    return;
+  }
+ 
+  // ── Device-aware simulation resolution ──
+  // Lower resolution on mobile/low-DPR for performance
+  const isMobile   = window.innerWidth < 768;
+  const SIM_RES    = isMobile ? 128 : 192; // intentionally lower than 256 — controls spread
+ 
+  // Canvas display resolution — capped DPR
+  const DPR = Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2.0);
+ 
+  // ── Resize ──
+  function resize() {
+    const r = hero.getBoundingClientRect();
+    canvas.width  = Math.floor(r.width  * DPR);
+    canvas.height = Math.floor(r.height * DPR);
+    // CSS size stays 100% via stylesheet
+  }
+  resize();
+ 
+  // Debounced resize — avoid thrashing on rapid resize
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resize, 150);
+  });
+ 
+  /* ── GLSL Shaders ──────────────────────────────────────────── */
+ 
+  const VS = /* glsl */`
+    attribute vec2 a_pos;
+    varying   vec2 v_uv;
+    void main() {
+      v_uv        = a_pos * 0.5 + 0.5;
+      gl_Position = vec4(a_pos, 0.0, 1.0);
+    }
+  `;
+ 
+  // Velocity advection — carries velocity field forward in time
+  const FS_VEL_ADVECT = /* glsl */`
+    precision highp float;
+    varying   vec2      v_uv;
+    uniform   sampler2D u_vel;
+    uniform   float     u_dt;
+    uniform   float     u_dissipation;
+ 
+    void main() {
+      vec2 vel  = texture2D(u_vel, v_uv).xy;
+      // Advect: sample velocity from where current parcel came from
+      vec2 prev = v_uv - vel * u_dt;
+      prev      = clamp(prev, 0.0, 1.0);
+      vec4 v2   = texture2D(u_vel, prev);
+      // Apply damping (dissipation) — higher = more damping = thicker feel
+      gl_FragColor = v2 * u_dissipation;
+    }
+  `;
+ 
+  // Dye advection — carries ink colour through velocity field
+  const FS_DYE_ADVECT = /* glsl */`
+    precision highp float;
+    varying   vec2      v_uv;
+    uniform   sampler2D u_vel;
+    uniform   sampler2D u_dye;
+    uniform   float     u_dt;
+    uniform   float     u_dissipation;
+ 
+    void main() {
+      vec2 vel   = texture2D(u_vel, v_uv).xy;
+      vec2 prev  = v_uv - vel * u_dt;
+      prev       = clamp(prev, 0.0, 1.0);
+      vec4 color = texture2D(u_dye, prev);
+      // Gentle fade — ink lingers but slowly dissipates naturally
+      gl_FragColor = color * u_dissipation;
+    }
+  `;
+ 
+  // Splat — injects velocity impulse or dye colour at a screen point
+  const FS_SPLAT = /* glsl */`
+    precision highp float;
+    varying   vec2      v_uv;
+    uniform   sampler2D u_tex;
+    uniform   vec2      u_point;
+    uniform   vec3      u_color;
+    uniform   float     u_radius;
+    uniform   float     u_aspect;
+    uniform   bool      u_isVel;
+    uniform   vec2      u_force;
+ 
+    void main() {
+      vec2  p = v_uv - u_point;
+      p.x    *= u_aspect;                     // correct for non-square canvas
+      // Gaussian splat — controls spatial spread
+      float d = exp(-dot(p, p) / u_radius);
+      if (u_isVel) {
+        vec2 v   = texture2D(u_tex, v_uv).xy;
+        gl_FragColor = vec4(v + u_force * d, 0.0, 1.0);
+      } else {
+        vec4 base = texture2D(u_tex, v_uv);
+        gl_FragColor = vec4(base.rgb + u_color * d, 1.0);
+      }
+    }
+  `;
+ 
+  // Display — composite dye buffer onto screen
+  // Pure flat #CF0000 — no mixing, no desaturation. Ink intensity drives alpha only.
+  const FS_DISPLAY = /* glsl */`
+    precision highp float;
+    varying   vec2      v_uv;
+    uniform   sampler2D u_dye;
+ 
+    void main() {
+      vec4  dye = texture2D(u_dye, v_uv);
+ 
+      // Use R-channel as the sole intensity signal — #CF0000 is pure red
+      float ink = dye.r;
+      ink = clamp(ink, 0.0, 1.0);
+ 
+      // Flat, fully saturated #CF0000 — (207/255, 0, 0)
+      // No mixing. No gradient. No edge/core blending. Pure color.
+      vec3 inkColor = vec3(0.812, 0.0, 0.0);
+ 
+      // Alpha only — ink intensity controls visibility, color stays constant
+      gl_FragColor = vec4(inkColor, ink * 0.95);
+    }
+  `;
+ 
+  /* ── Shader compilation ──────────────────────────────────── */
+  function compileShader(type, src) {
+    const sh = gl.createShader(type);
+    gl.shaderSource(sh, src);
+    gl.compileShader(sh);
+    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+      console.warn('[VEKTR Fluid] Shader error:', gl.getShaderInfoLog(sh));
+    }
+    return sh;
+  }
+ 
+  function createProgram(vsSrc, fsSrc) {
+    const prog = gl.createProgram();
+    gl.attachShader(prog, compileShader(gl.VERTEX_SHADER,   vsSrc));
+    gl.attachShader(prog, compileShader(gl.FRAGMENT_SHADER, fsSrc));
+    gl.linkProgram(prog);
+    return prog;
+  }
+ 
+  const progVelAdvect = createProgram(VS, FS_VEL_ADVECT);
+  const progDyeAdvect = createProgram(VS, FS_DYE_ADVECT);
+  const progSplat     = createProgram(VS, FS_SPLAT);
+  const progDisplay   = createProgram(VS, FS_DISPLAY);
+ 
+  /* ── Fullscreen Quad ─────────────────────────────────────── */
+  const quadBuf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
+  gl.bufferData(gl.ARRAY_BUFFER,
+    new Float32Array([-1,-1,  1,-1,  -1,1,  1,1]),
+    gl.STATIC_DRAW
+  );
+ 
+  function bindQuad(prog) {
+    const loc = gl.getAttribLocation(prog, 'a_pos');
+    gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  }
+ 
+  function drawQuad(prog) {
+    bindQuad(prog);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  }
+ 
+  /* ── FBO utilities ───────────────────────────────────────── */
+  function makeFBO(w, h) {
+    const tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S,     gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T,     gl.CLAMP_TO_EDGE);
+    const fbo = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+    return { fbo, tex };
+  }
+ 
+  function makeDoubleFBO(w, h) {
+    const a = makeFBO(w, h);
+    const b = makeFBO(w, h);
+    return {
+      read: a, write: b,
+      swap() { const t = this.read; this.read = this.write; this.write = t; }
+    };
+  }
+ 
+  const velFBO = makeDoubleFBO(SIM_RES, SIM_RES);
+  const dyeFBO = makeDoubleFBO(SIM_RES, SIM_RES);
+ 
+  function setTex(prog, name, unit, fbo) {
+    gl.activeTexture(gl.TEXTURE0 + unit);
+    gl.bindTexture(gl.TEXTURE_2D, fbo.tex);
+    gl.uniform1i(gl.getUniformLocation(prog, name), unit);
+  }
+ 
+  /* ── Splat ───────────────────────────────────────────────── */
+  // All tuning constants in one place for easy tweaking
+  const FLUID = {
+    forceScale:      320,    // ↓ from 800 — controlled, not explosive  (250–400 range)
+    velRadius:       0.0022, // ↓ from 0.004 — tighter velocity footprint
+    dyeRadius:       0.0032, // ↓ from 0.007 — tighter dye splash (0.003–0.004)
+    velDissipation:  0.987,  // ↑ damping (0.985–0.99) — velocity decays faster = thicker feel
+    dyeDissipation:  0.984,  // ↑ damping — ink fades naturally without flooding
+    maxVelocity:     0.12,   // clamp per-axis velocity — prevents explosions
+    minMoveThresh:   0.0012, // must move this much before a splat fires
+    minSplatInterval:25,     // ms between splats (↑ from 12 → 25ms = less frantic)
+    dtScale:         1.0,    // multiplier on dt — reduce if sim feels too fast
+    maxDt:           0.014,  // hard cap on dt to avoid burst on tab-focus
+  };
+ 
+  function splat(x, y, dx, dy) {
+    const aspect = canvas.width / canvas.height;
+ 
+    // Clamp raw velocity input — prevents chaotic explosion on fast swipes
+    const speed  = Math.sqrt(dx * dx + dy * dy);
+    const maxSpd = FLUID.maxVelocity;
+    if (speed > maxSpd) {
+      const scale = maxSpd / speed;
+      dx *= scale;
+      dy *= scale;
+    }
+ 
+    // ── Velocity splat ──
+    gl.useProgram(progSplat);
+    gl.viewport(0, 0, SIM_RES, SIM_RES);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, velFBO.write.fbo);
+    setTex(progSplat, 'u_tex', 0, velFBO.read);
+    gl.uniform2f(gl.getUniformLocation(progSplat, 'u_point'),  x, y);
+    gl.uniform2f(gl.getUniformLocation(progSplat, 'u_force'),  dx * FLUID.forceScale, dy * FLUID.forceScale);
+    gl.uniform1f(gl.getUniformLocation(progSplat, 'u_radius'), FLUID.velRadius);
+    gl.uniform1f(gl.getUniformLocation(progSplat, 'u_aspect'), aspect);
+    gl.uniform1i(gl.getUniformLocation(progSplat, 'u_isVel'),  1);
+    drawQuad(progSplat);
+    velFBO.swap();
+ 
+    // ── Dye splat — exact #CF0000 = (207/255, 0, 0). No jitter. No variation. ──
+    gl.bindFramebuffer(gl.FRAMEBUFFER, dyeFBO.write.fbo);
+    setTex(progSplat, 'u_tex', 0, dyeFBO.read);
+    gl.uniform1i(gl.getUniformLocation(progSplat, 'u_isVel'),  0);
+    gl.uniform3f(gl.getUniformLocation(progSplat, 'u_color'),
+      0.812,  // R — 207/255 — exact #CF0000
+      0.0,    // G — pure, no green bleed
+      0.0     // B — pure, no blue bleed
+    );
+    gl.uniform1f(gl.getUniformLocation(progSplat, 'u_radius'), FLUID.dyeRadius);
+    gl.uniform1f(gl.getUniformLocation(progSplat, 'u_aspect'), aspect);
+    drawQuad(progSplat);
+    dyeFBO.swap();
+  }
+ 
+  /* ── Simulation step ─────────────────────────────────────── */
+  function step(dt) {
+    const safeDt = Math.min(dt * FLUID.dtScale, FLUID.maxDt);
+ 
+    // 1. Advect velocity
+    gl.useProgram(progVelAdvect);
+    gl.viewport(0, 0, SIM_RES, SIM_RES);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, velFBO.write.fbo);
+    setTex(progVelAdvect, 'u_vel', 0, velFBO.read);
+    gl.uniform1f(gl.getUniformLocation(progVelAdvect, 'u_dt'),          safeDt);
+    gl.uniform1f(gl.getUniformLocation(progVelAdvect, 'u_dissipation'), FLUID.velDissipation);
+    drawQuad(progVelAdvect);
+    velFBO.swap();
+ 
+    // 2. Advect dye through velocity field
+    gl.useProgram(progDyeAdvect);
+    gl.viewport(0, 0, SIM_RES, SIM_RES);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, dyeFBO.write.fbo);
+    setTex(progDyeAdvect, 'u_vel', 0, velFBO.read);
+    setTex(progDyeAdvect, 'u_dye', 1, dyeFBO.read);
+    gl.uniform1f(gl.getUniformLocation(progDyeAdvect, 'u_dt'),          safeDt);
+    gl.uniform1f(gl.getUniformLocation(progDyeAdvect, 'u_dissipation'), FLUID.dyeDissipation);
+    drawQuad(progDyeAdvect);
+    dyeFBO.swap();
+  }
+ 
+  /* ── Render to screen ────────────────────────────────────── */
+  function render() {
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.useProgram(progDisplay);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    setTex(progDisplay, 'u_dye', 0, dyeFBO.read);
+    drawQuad(progDisplay);
+  }
+ 
+  /* ── Pointer input with lerp-smoothed position ───────────── */
+  // Smooth pointer coordinates before feeding into fluid sim
+  // Prevents jagged trajectories from abrupt mouse direction changes
+  let rawPX = -1, rawPY = -1;   // raw normalized [0,1] coords
+  let simPX = -1, simPY = -1;   // smoothed coords fed to splat
+  const PTR_LERP = 0.30;        // pointer smoothing (lower = more lag)
+ 
+  let lastSplatTime = 0;
+  let prevSimX = -1, prevSimY = -1;
+  let pointerActive = false;
+ 
+  function onPointerMove(cx, cy) {
+    const rect = hero.getBoundingClientRect();
+    if (cx < rect.left || cx > rect.right || cy < rect.top || cy > rect.bottom) {
+      pointerActive = false;
+      return;
+    }
+    pointerActive = true;
+    rawPX = (cx - rect.left) / rect.width;
+    rawPY = 1.0 - (cy - rect.top) / rect.height;
+ 
+    // Init smoothed pos on first touch
+    if (simPX < 0) { simPX = rawPX; simPY = rawPY; }
+  }
+ 
+  document.addEventListener('mousemove', e => onPointerMove(e.clientX, e.clientY));
+  document.addEventListener('touchmove', e => {
+    onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+  }, { passive: true });
+  document.addEventListener('mouseleave', () => { pointerActive = false; });
+ 
+  /* ── Main rAF loop ───────────────────────────────────────── */
+  let lastFrameTime = performance.now();
+ 
+  function loop(now) {
+    const rawDt = (now - lastFrameTime) / 1000;
+    lastFrameTime = now;
+ 
+    // Smooth pointer position — avoids jerky velocity vectors in sim
+    if (simPX >= 0) {
+      simPX += (rawPX - simPX) * PTR_LERP;
+      simPY += (rawPY - simPY) * PTR_LERP;
+    }
+ 
+    // Fire splat if pointer moved enough and cooldown elapsed
+    if (pointerActive && simPX >= 0 && prevSimX >= 0) {
+      const dx   = simPX - prevSimX;
+      const dy   = simPY - prevSimY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const timeSinceLast = now - lastSplatTime;
+ 
+      if (dist > FLUID.minMoveThresh && timeSinceLast > FLUID.minSplatInterval) {
+        splat(simPX, simPY, dx, dy);
+        lastSplatTime = now;
+      }
+    }
+ 
+    if (simPX >= 0) {
+      prevSimX = simPX;
+      prevSimY = simPY;
+    }
+ 
+    step(rawDt);
+    render();
+ 
+    requestAnimationFrame(loop);
+  }
+ 
+  requestAnimationFrame(loop);
+ 
+})(); // end initFluid
+</script>
+</body>
+</html>
