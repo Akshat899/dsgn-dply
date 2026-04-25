@@ -1,0 +1,204 @@
+<canvas id="bgCanvas"></canvas>
+
+<script>
+const canvas = document.getElementById("bgCanvas");
+const ctx = canvas.getContext("2d");
+
+let width, height, figures = [];
+
+const COLOR_BG = "#CF0000";
+const COLOR_FG = "#FFD84D";
+
+const SPACING = 110;
+const SIZE = 14;
+const LOOP = 6000;
+
+function resize() {
+  const dpr = window.devicePixelRatio || 1;
+  width = window.innerWidth;
+  height = window.innerHeight;
+
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  canvas.style.width = width + "px";
+  canvas.style.height = height + "px";
+
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  generateFigures();
+}
+window.addEventListener("resize", resize);
+resize();
+
+function generateFigures() {
+  figures = [];
+  for (let x = SPACING/2; x < width; x += SPACING) {
+    for (let y = SPACING/2; y < height; y += SPACING) {
+      figures.push({
+        x: x + (Math.random() - 0.5) * 10,
+        y: y + (Math.random() - 0.5) * 10,
+        type: Math.floor(Math.random() * 7),
+        phase: Math.random() * Math.PI * 2
+      });
+    }
+  }
+}
+
+// --- DRAW HELPERS ---
+function head() {
+  ctx.beginPath();
+  ctx.arc(0, -SIZE, SIZE * 0.3, 0, Math.PI * 2);
+  ctx.stroke();
+}
+
+function body() {
+  ctx.beginPath();
+  ctx.moveTo(0, -SIZE * 0.7);
+  ctx.lineTo(0, SIZE * 0.5);
+  ctx.stroke();
+}
+
+function arms(a) {
+  ctx.beginPath();
+  ctx.moveTo(0, -SIZE * 0.2);
+  ctx.lineTo(-a, SIZE * 0.2);
+  ctx.moveTo(0, -SIZE * 0.2);
+  ctx.lineTo(a, SIZE * 0.2);
+  ctx.stroke();
+}
+
+function legs(l) {
+  ctx.beginPath();
+  ctx.moveTo(0, SIZE * 0.5);
+  ctx.lineTo(-l, SIZE);
+  ctx.moveTo(0, SIZE * 0.5);
+  ctx.lineTo(l, SIZE);
+  ctx.stroke();
+}
+
+// --- PROPS ---
+function drawLaptop() {
+  ctx.strokeRect(-8, 6, 16, 8);
+}
+
+function drawCup(t) {
+  ctx.beginPath();
+  ctx.rect(6, 2, 6, 4);
+  ctx.stroke();
+
+  // steam
+  ctx.beginPath();
+  ctx.moveTo(9, 0);
+  ctx.quadraticCurveTo(9 + Math.sin(t)*2, -4, 9, -6);
+  ctx.stroke();
+}
+
+function drawPhone() {
+  ctx.strokeRect(6, -2, 4, 7);
+}
+
+function drawBag() {
+  ctx.beginPath();
+  ctx.rect(5, 4, 6, 7);
+  ctx.stroke();
+}
+
+function drawBicycle(t) {
+  const r = 6;
+  ctx.beginPath();
+  ctx.arc(-8, 8, r, 0, Math.PI * 2);
+  ctx.arc(8, 8, r, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // pedals
+  ctx.beginPath();
+  ctx.moveTo(0, 8);
+  ctx.lineTo(Math.cos(t)*5, 8 + Math.sin(t)*5);
+  ctx.stroke();
+}
+
+// --- FIGURES ---
+function drawFigure(f, t) {
+  const time = (t % LOOP) / LOOP * Math.PI * 2 + f.phase;
+
+  ctx.save();
+  ctx.translate(f.x, f.y);
+  ctx.strokeStyle = COLOR_FG;
+  ctx.lineWidth = 1.6;
+  ctx.lineCap = "round";
+
+  head();
+  body();
+
+  let arm = Math.sin(time * 0.8) * SIZE * 0.5;
+  let leg = Math.cos(time * 0.8) * SIZE * 0.5;
+
+  switch (f.type) {
+
+    case 0: // walking
+      arms(arm);
+      legs(leg);
+      break;
+
+    case 1: // laptop working
+      arms(2);
+      legs(0);
+      drawLaptop();
+      break;
+
+    case 2: // coffee
+      arms(2);
+      legs(0);
+      drawCup(time);
+      break;
+
+    case 3: // phone
+      arms(2);
+      legs(0);
+      drawPhone();
+      break;
+
+    case 4: // carrying bag
+      arms(2);
+      legs(leg * 0.5);
+      drawBag();
+      break;
+
+    case 5: // waving
+      arms(Math.sin(time * 2) * SIZE * 0.7);
+      legs(0);
+      break;
+
+    case 6: // bicycle
+      arms(2);
+      legs(0);
+      drawBicycle(time);
+      break;
+  }
+
+  ctx.restore();
+}
+
+// --- LOOP ---
+function animate(t) {
+  ctx.fillStyle = COLOR_BG;
+  ctx.fillRect(0, 0, width, height);
+
+  for (let f of figures) drawFigure(f, t);
+
+  requestAnimationFrame(animate);
+}
+requestAnimationFrame(animate);
+</script>
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #CF0000;
+}
+canvas {
+  display: block;
+}
+</style>

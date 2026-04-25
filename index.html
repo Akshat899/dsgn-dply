@@ -515,7 +515,25 @@
 .expand-btn:hover {
   transform: scale(1.1) rotate(15deg);
 }
+.expand-button {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: none;
+  transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+}
 
+.expand-button:hover {
+  transform: scale(1.1) rotate(-15deg);
+}
 /* EXPANDED PANEL */
 .panel-expanded {
   position: fixed;
@@ -587,6 +605,312 @@
   .expanded-content {
     grid-template-columns: 1fr;
   }
+}
+.cu-section {
+  background: #CF0000;
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  isolation: isolate;
+}
+ 
+.cu-corner-label {
+  position: absolute;
+  top: 36px;
+  left: 48px;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.28);
+  pointer-events: none;
+  user-select: none;
+  z-index: 4;
+}
+ 
+/* Two-column grid */
+.cu-inner {
+  max-width: 1340px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 45% 55%;
+  /* Section height is determined by form side; statue fills it */
+  position: relative;
+}
+ 
+/* ═══════════════════════════
+   LEFT — statue + text overlay
+═══════════════════════════ */
+.cu-left {
+  position: relative;
+  /* Overflow hidden so statue clips at section edges */
+  overflow: hidden;
+  /* Min-height so left never collapses shorter than form */
+  min-height: 600px;
+}
+ 
+/* ── Statue wrapper ── */
+/* Positioned at bottom of left col, spans full width */
+.cu-statue-wrap {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  /* Statue is tall — let it overflow upward naturally */
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+ 
+  /* === SCROLL ANIMATION INITIAL STATE ===
+     JS drives this via --cu-statue-progress (0→1)
+     Initial: translated fully below, invisible */
+  transform: translateY(100%);
+  opacity: 0;
+  will-change: transform, opacity;
+  /* NO CSS transition here — rAF lerp handles smoothness */
+}
+ 
+.cu-statue {
+  /* Fill most of the left column height */
+  height: 92%;
+  width: auto;
+  max-width: 100%;
+  display: block;
+  object-fit: contain;
+  object-position: bottom center;
+  /* Cinematic: slight desaturation + shadow for depth */
+  filter:
+    drop-shadow(-8px 0 40px rgba(0,0,0,0.35))
+    drop-shadow(0 -16px 48px rgba(0,0,0,0.2))
+    brightness(0.82)
+    contrast(1.08);
+  user-select: none;
+  pointer-events: none;
+  flex-shrink: 0;
+}
+ 
+/* ── Text overlay ──
+   Anchored to bottom-left of left column, on top of statue */
+.cu-left-text {
+  position: absolute;
+  bottom: 52px;
+  left: 44px;
+  z-index: 3;
+  /* Dark gradient behind text so it reads over the statue */
+  padding: 24px 28px 20px 0;
+ 
+  /* === SCROLL ANIMATION INITIAL STATE ===
+     Slides up slightly after statue, delayed */
+  transform: translateY(48px);
+  opacity: 0;
+  will-change: transform, opacity;
+  /* NO CSS transition — rAF lerp + JS delay drives this */
+}
+ 
+.cu-left-heading {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(3.2rem, 5.5vw, 5.8rem);
+  letter-spacing: 0.01em;
+  line-height: 0.90;
+  color: var(--cream);
+  margin-bottom: 12px;
+  /* Heavy text shadow so heading punches through statue */
+  text-shadow:
+    2px 2px 0 rgba(255,255,255,0.08),
+    0 4px 32px rgba(0,0,0,0.18);
+}
+ 
+.cu-left-sub {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(0.88rem, 1.3vw, 1.05rem);
+  line-height: 1.7;
+  color: var(--cream);
+  font-style: italic;
+}
+ 
+/* ═══════════════════════════
+   RIGHT — Form side
+═══════════════════════════ */
+.cu-right {
+  display: flex;
+  align-items: center;
+  padding: 64px 52px 64px 36px;
+}
+ 
+.cu-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 46px 42px 42px;
+  width: 100%;
+  box-shadow:
+    0 2px 6px rgba(0,0,0,0.05),
+    0 20px 56px rgba(0,0,0,0.14);
+  position: relative;
+  overflow: hidden;
+}
+ 
+.cu-card-header { margin-bottom: 34px; }
+ 
+.cu-card-eyebrow {
+  display: block;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #CF0000;
+  margin-bottom: 10px;
+}
+ 
+.cu-card-heading {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2rem, 3.2vw, 2.8rem);
+  letter-spacing: 0.02em;
+  line-height: 0.95;
+  color: #1a0a0a;
+}
+/* ── Form fields ── */
+.cu-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+ 
+.cu-field-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+ 
+.cu-field { display: flex; flex-direction: column; gap: 7px; }
+ 
+.cu-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #1a0a0a;
+  opacity: 0.45;
+}
+ 
+.cu-input {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1a0a0a;
+  background: #f6f3ef;
+  border: 1.5px solid transparent;
+  border-radius: 10px;
+  padding: 13px 15px;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+ 
+.cu-input::placeholder { color: #b5ada5; font-weight: 400; }
+.cu-input:focus { background: #fff; border-color: #CF0000; box-shadow: 0 0 0 3px rgba(207,0,0,0.09); }
+.cu-input:hover:not(:focus) { border-color: rgba(207,0,0,0.22); }
+ 
+.cu-select-wrap { position: relative; }
+.cu-select { cursor: pointer; padding-right: 38px; }
+ 
+.cu-select-arrow {
+  position: absolute; right: 13px; top: 50%;
+  transform: translateY(-50%);
+  width: 11px; pointer-events: none; opacity: 0.4;
+  transition: opacity 0.2s ease, transform 0.25s ease;
+}
+.cu-select-wrap:focus-within .cu-select-arrow {
+  opacity: 0.75;
+  transform: translateY(-50%) rotate(180deg);
+}
+ 
+/* ── Submit button ── */
+.cu-submit {
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: #CF0000; color: #fff; border: none; border-radius: 12px;
+  padding: 15px 30px;
+  font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  cursor: pointer; margin-top: 4px; isolation: isolate;
+  transition: color 0.38s ease; width: 100%;
+}
+.cu-submit-text { position: relative; z-index: 2; }
+.cu-submit-arrow {
+  width: 17px; height: 17px; flex-shrink: 0;
+  position: relative; z-index: 2;
+  transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.cu-submit-sweep {
+  position: absolute; inset: 0;
+  background: #F5C800;
+  transform: translateX(-105%);
+  transition: transform 0.42s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  z-index: 1; border-radius: inherit;
+}
+.cu-submit:hover .cu-submit-sweep { transform: translateX(0); }
+.cu-submit:hover { color: #000; }
+.cu-submit:hover .cu-submit-arrow { transform: translateX(5px); }
+.cu-submit:focus-visible { outline: 2px solid #F5C800; outline-offset: 3px; }
+ 
+/* ── Validation ── */
+.cu-input.cu-error { border-color: rgba(207,0,0,0.55); }
+ 
+/* ── Success state ── */
+.cu-card.cu-success .cu-form {
+  opacity: 0; transform: translateY(-8px); pointer-events: none;
+}
+.cu-success-msg {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 18px; opacity: 0; transform: translateY(12px);
+  transition: opacity 0.45s ease 0.3s, transform 0.45s ease 0.3s;
+  padding: 40px; text-align: center; pointer-events: none;
+  background: #fff; border-radius: inherit;
+}
+.cu-card.cu-success .cu-success-msg { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.cu-success-icon {
+  width: 54px; height: 54px; border-radius: 50%; background: #CF0000;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.cu-success-title { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; letter-spacing: 0.03em; color: #1a0a0a; }
+.cu-success-body { font-family: 'Instrument Serif', serif; font-size: 1rem; color: rgba(26,10,10,0.55); font-style: italic; line-height: 1.65; }
+ 
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .cu-inner { grid-template-columns: 42% 58%; }
+  .cu-right { padding: 48px 32px 48px 24px; }
+  .cu-card  { padding: 36px 30px 32px; }
+  .cu-left-text { left: 28px; bottom: 40px; }
+}
+ 
+@media (max-width: 768px) {
+  .cu-inner { grid-template-columns: 1fr; min-height: auto; }
+  .cu-right { order: -1; padding: 72px 20px 28px; }
+  .cu-left  { order: 1; min-height: 380px; }
+  .cu-left-text { left: 24px; bottom: 32px; }
+  .cu-corner-label { left: 20px; top: 22px; }
+  .cu-field-group { grid-template-columns: 1fr; gap: 12px; }
+}
+ 
+@media (max-width: 480px) {
+  .cu-card { border-radius: 16px; padding: 22px 16px 22px; }
+  .cu-right { padding: 64px 16px 24px; }
+  .cu-left  { min-height: 320px; }
+  .cu-left-text { left: 16px; bottom: 24px; }
+  .cu-left-heading { font-size: 2.6rem; }
+}
+ 
+@media (hover: none) {
+  .cu-select, .cu-input { cursor: auto; }
+  .cu-submit { cursor: pointer; }
 }
 </style>
 </head>
@@ -724,7 +1048,7 @@
             Not faster. Not louder. But sharper, cleaner, and more human.
           </p>
 
-          <button class="expand-btn">
+          <button class="expand-button">
             <span>→</span>
           </button>
         </div>
@@ -751,6 +1075,108 @@
     </div>
   </div>
 
+</section>
+<!-- ═══════════════════════════════════════════════════════════════
+     CONTACT US SECTION
+     Red panel · Left: statue reveal + editorial text · Right: form
+════════════════════════════════════════════════════════════════ -->
+<section class="cu-section" id="contact">
+ 
+  <div class="cu-inner">
+ 
+    <!-- ══ LEFT — Full-height statue with text overlay ══ -->
+    <div class="cu-left">
+ 
+      <!-- Statue — fills entire left column, anchored to bottom -->
+      <div class="cu-statue-wrap">
+        <img
+          class="cu-statue"
+          src="res/Alexander the Great.png"
+          alt=""
+          draggable="false"
+          width="438"
+          height="620"
+        >
+      </div>
+ 
+      <!-- Text overlay — sits in front of statue, bottom-left of left col -->
+      <div class="cu-left-text">
+        <h2 class="cu-left-heading">Send your<br>queries.</h2>
+        <p class="cu-left-sub">Tell us what you need.<br>We'll build it right.</p>
+      </div>
+ 
+    </div>
+ 
+    <!-- ══ RIGHT — Contact Form Card ══ -->
+    <div class="cu-right">
+      <div class="cu-card">
+ 
+        <div class="cu-card-header">
+          <span class="cu-card-eyebrow">Start a conversation</span>
+          <h3 class="cu-card-heading">Let's work<br>together.</h3>
+        </div>
+ 
+        <form class="cu-form" id="cu-form" novalidate>
+ 
+          <div class="cu-field-group">
+            <div class="cu-field">
+              <label class="cu-label" for="cu-name">Full Name</label>
+              <input class="cu-input" type="text" id="cu-name" name="name"
+                placeholder="Akshat Sharma" autocomplete="name" required>
+            </div>
+            <div class="cu-field">
+              <label class="cu-label" for="cu-email">Email</label>
+              <input class="cu-input" type="email" id="cu-email" name="email"
+                placeholder="hello@studio.com" autocomplete="email" required>
+            </div>
+          </div>
+ 
+          <div class="cu-field-group">
+            <div class="cu-field">
+              <label class="cu-label" for="cu-phone">Phone Number</label>
+              <input class="cu-input" type="tel" id="cu-phone" name="phone"
+                placeholder="+91 98765 43210" autocomplete="tel">
+            </div>
+            <div class="cu-field">
+              <label class="cu-label" for="cu-purpose">Purpose</label>
+              <div class="cu-select-wrap">
+                <select class="cu-input cu-select" id="cu-purpose" name="purpose" required>
+                  <option value="" disabled selected>Select a service</option>
+                  <option value="uiux">UI/UX Design</option>
+                  <option value="branding">Branding &amp; Identity</option>
+                  <option value="web">Website Development</option>
+                  <option value="landing">Landing Page Design</option>
+                  <option value="ecom">E-commerce Development</option>
+                  <option value="motion">Motion Graphics</option>
+                  <option value="custom">Custom Project</option>
+                </select>
+                <svg class="cu-select-arrow" viewBox="0 0 16 10" fill="none" aria-hidden="true">
+                  <polyline points="1,1 8,9 15,1" stroke="#1a0a0a" stroke-width="1.5"
+                            stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+ 
+          <button class="cu-submit" type="submit" aria-label="Send message">
+            <span class="cu-submit-text">Send Message</span>
+            <span class="cu-submit-sweep" aria-hidden="true"></span>
+            <svg class="cu-submit-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              <polyline points="13,5 20,12 13,19" stroke="currentColor" stroke-width="1.6"
+                        stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+ 
+        </form>
+ 
+      </div>
+    </div>
+ 
+  </div>
+ 
+  <span class="cu-corner-label" aria-hidden="true">Contact</span>
+ 
 </section>
 <!-- ─── FOOTER ─── -->
 <footer class="footer-strip">
@@ -1348,6 +1774,176 @@
     panels.forEach(p => p.classList.remove('active'));
   });
 
+})();
+(function initContact() {
+  'use strict';
+ 
+  var section    = document.getElementById('contact');
+  var statueWrap = section && section.querySelector('.cu-statue-wrap');
+  var leftText   = section && section.querySelector('.cu-left-text');
+  var form       = document.getElementById('cu-form');
+  var card       = form && form.closest('.cu-card');
+  var cursor     = document.getElementById('cursor');
+ 
+  if (!section || !statueWrap || !leftText) return;
+ 
+  /* ════════════════════════════════════════════════════════════
+     SCROLL-PROGRESS ANIMATION ENGINE
+     ─────────────────────────────────────────────────────────
+     How it works:
+     • On every scroll + rAF tick we compute a [0 → 1] progress
+       value based on how much of the section is in the viewport.
+     • progress = 0  → section just entering from bottom
+       progress = 1  → section fully scrolled into view
+     • Both statue and text use lerp-smoothed "display progress"
+       values so motion is always buttery — no CSS transitions
+       are used for the scroll animations at all.
+     • Scroll-away reversal: progress decreases as user scrolls
+       back up, animations smoothly reverse.
+     ─────────────────────────────────────────────────────────
+     Statue:  enters first, faster
+     Text:    follows with a natural lag (separate lerp target)
+  ════════════════════════════════════════════════════════════ */
+ 
+  // Raw scroll progress [0..1] — updates on scroll event
+  var rawProgress   = 0;
+ 
+  // Smoothed display values — updated every rAF frame via lerp
+  var statueDisplay = 0;   // drives statue  (fast lerp)
+  var textDisplay   = 0;   // drives text    (slower, follows statue)
+ 
+  // Lerp speeds — lower = more inertia/lag
+  var STATUE_LERP = 0.055;  // statue: smooth and weighty
+  var TEXT_LERP   = 0.038;  // text:   follows statue with extra lag
+ 
+  // Text only starts moving after statue is well on its way
+  var TEXT_THRESHOLD = 0.28; // statueDisplay must reach this before text begins
+ 
+  function lerp(a, b, t) { return a + (b - a) * t; }
+ 
+  /* Compute raw progress from section's position in viewport */
+  function computeProgress() {
+    var rect    = section.getBoundingClientRect();
+    var vh      = window.innerHeight;
+    var sh      = rect.height;
+ 
+    // Entry zone: section bottom enters viewport → section fills viewport
+    // We want progress=0 when section.bottom === vh (just peeking in)
+    // and progress=1 when section.top === vh * 0.10 (well in view)
+    var entryStart = vh;                    // section bottom at viewport bottom
+    var entryEnd   = vh * 0.12;            // section top near viewport top
+ 
+    // Current "position" — top of section relative to viewport bottom
+    var pos = rect.top;
+ 
+    var p = (entryStart - pos) / (entryStart - entryEnd);
+    return Math.max(0, Math.min(1, p));
+  }
+ 
+  /* Apply smoothed progress values to DOM */
+  function applyStatue(v) {
+    // v: 0 = fully hidden below, 1 = fully visible
+    var translateY = (1 - v) * 100; // 100% → 0%
+    var opacity    = Math.min(1, v * 1.6); // fade completes before full travel
+    statueWrap.style.transform = 'translateY(' + translateY + '%)';
+    statueWrap.style.opacity   = opacity;
+  }
+ 
+  function applyText(v) {
+    // Text starts from translateY(48px), fades in
+    var translateY = (1 - v) * 48;
+    var opacity    = Math.min(1, v * 1.8);
+    leftText.style.transform = 'translateY(' + translateY + 'px)';
+    leftText.style.opacity   = opacity;
+  }
+ 
+  /* rAF tick — runs every frame */
+  var rafId = null;
+ 
+  function tick() {
+    // Lerp statue toward raw progress
+    statueDisplay = lerp(statueDisplay, rawProgress, STATUE_LERP);
+ 
+    // Text target: only pull toward rawProgress once statue is past threshold
+    // This creates the natural "statue first, then text" sequencing
+    var textTarget = 0;
+    if (statueDisplay >= TEXT_THRESHOLD) {
+      // Remap: statue goes TEXT_THRESHOLD→1, text goes 0→1
+      textTarget = Math.min(1, (statueDisplay - TEXT_THRESHOLD) / (1 - TEXT_THRESHOLD));
+      // Also respect rawProgress — if scrolling away, text follows
+      textTarget = Math.min(textTarget, rawProgress > 0.01 ? 1 : 0);
+      // If raw is going backward, text also goes backward
+      if (rawProgress < TEXT_THRESHOLD) textTarget = 0;
+    }
+    textDisplay = lerp(textDisplay, textTarget, TEXT_LERP);
+ 
+    applyStatue(statueDisplay);
+    applyText(textDisplay);
+ 
+    rafId = requestAnimationFrame(tick);
+  }
+ 
+  /* Start scroll tracking */
+  function onScroll() {
+    rawProgress = computeProgress();
+  }
+ 
+  window.addEventListener('scroll', onScroll, { passive: true });
+  // Run once on load in case section is already partially visible
+  onScroll();
+  tick();
+ 
+  /* ── Cursor hover wiring ── */
+  function wireCursor(els) {
+    if (!cursor) return;
+    els.forEach(function(el) {
+      el.addEventListener('mouseenter', function() { cursor.classList.add('hover'); });
+      el.addEventListener('mouseleave', function() { cursor.classList.remove('hover'); });
+    });
+  }
+  wireCursor(Array.from(section.querySelectorAll('.cu-submit, .cu-input, .cu-select')));
+ 
+  /* ── Form — validation + success state ── */
+  if (!form || !card) return;
+ 
+  var successMsg = document.createElement('div');
+  successMsg.className = 'cu-success-msg';
+  successMsg.setAttribute('role', 'alert');
+  successMsg.innerHTML =
+    '<div class="cu-success-icon">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"' +
+           ' stroke-linecap="round" stroke-linejoin="round" width="24" height="24">' +
+        '<polyline points="20,6 9,17 4,12"/>' +
+      '</svg>' +
+    '</div>' +
+    '<p class="cu-success-title">Message sent.</p>' +
+    '<p class="cu-success-body">We\'ll review your brief and<br>get back to you within 24 hours.</p>';
+  card.appendChild(successMsg);
+ 
+  Array.from(form.querySelectorAll('.cu-input')).forEach(function(input) {
+    input.addEventListener('blur', function() {
+      if ((input.required && !input.value.trim()) ||
+          (input.type === 'email' && input.value && !input.validity.valid)) {
+        input.classList.add('cu-error');
+      }
+    });
+    input.addEventListener('input', function() { input.classList.remove('cu-error'); });
+  });
+ 
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var valid = true;
+    Array.from(form.querySelectorAll('.cu-input[required]')).forEach(function(input) {
+      if (!input.value.trim() || (input.type === 'email' && input.value && !input.validity.valid)) {
+        input.classList.add('cu-error');
+        valid = false;
+      }
+    });
+    if (!valid) return;
+    card.style.minHeight = card.offsetHeight + 'px';
+    card.classList.add('cu-success');
+  });
+ 
 })();
 </script>
 </body>
