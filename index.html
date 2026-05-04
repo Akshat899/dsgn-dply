@@ -912,6 +912,951 @@
   .cu-select, .cu-input { cursor: auto; }
   .cu-submit { cursor: pointer; }
 }
+/* ════════════════════════════
+   Section shell
+════════════════════════════ */
+.bw-section {
+  position: relative;
+  background: var(--cream, #f9f5f0);   /* inherits global bg */
+  padding: 120px 40px 140px;
+  overflow: hidden;
+  isolation: isolate;
+}
+ 
+/* ── Grain texture (pure CSS SVG filter) ── */
+.bw-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.028;
+  /* Tileable SVG noise via data URI */
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  mix-blend-mode: multiply;
+}
+ 
+/* ── Sweep light ── */
+.bw-sweep {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: -60%;
+  width: 50%;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(255,255,255,0.18) 40%,
+    rgba(255,255,255,0.32) 55%,
+    rgba(255,255,255,0.18) 70%,
+    transparent 100%
+  );
+  /* JS triggers the sweep by adding .bw-sweep--run */
+  transform: translateX(0);
+  will-change: transform;
+}
+ 
+.bw-sweep--run {
+  transition: transform 1.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transform: translateX(400%);
+}
+ 
+/* ════════════════════════════
+   Inner content
+════════════════════════════ */
+.bw-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 3;
+}
+ 
+/* ════════════════════════════
+   Heading block
+════════════════════════════ */
+.bw-heading-block {
+  margin-bottom: 72px;
+  /* Subtle parallax target — JS sets transform */
+  will-change: transform;
+}
+ 
+.bw-eyebrow {
+  display: block;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #CF0000;
+  margin-bottom: 16px;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1);
+}
+ 
+.bw-heading-block.bw-text-revealed .bw-eyebrow {
+  opacity: 1;
+  transform: translateY(0);
+}
+ 
+.bw-heading {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(3rem, 6vw, 5.5rem);
+  letter-spacing: 0.01em;
+  line-height: 0.92;
+  color: #1a0a0a;
+  margin-bottom: 18px;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.7s ease 0.1s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s;
+}
+ 
+.bw-heading-block.bw-text-revealed .bw-heading {
+  opacity: 1;
+  transform: translateY(0);
+}
+ 
+.bw-sub {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(0.9rem, 1.4vw, 1.05rem);
+  color: rgba(26,10,10,0.45);
+  font-style: italic;
+  line-height: 1.6;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.6s ease 0.22s, transform 0.6s cubic-bezier(0.16,1,0.3,1) 0.22s;
+}
+ 
+.bw-heading-block.bw-text-revealed .bw-sub {
+  opacity: 1;
+  transform: translateY(0);
+}
+ 
+/* ════════════════════════════
+   Logo grid
+════════════════════════════ */
+.bw-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;                /* No gaps — spacing via cell padding */
+}
+ 
+/* ── Single logo cell ── */
+.bw-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 36px 28px;
+  position: relative;
+  /* Subtle invisible border grid */
+  border-right: 1px solid rgba(26,10,10,0.06);
+  border-bottom: 1px solid rgba(26,10,10,0.06);
+ 
+  /* ── BASE STATE: muted, grayscale ── */
+  opacity: 0;             /* reveal animation starts from 0 */
+  transform: translateY(20px);
+ 
+  /* ── TRANSITION for hover focus-isolation ── */
+  transition:
+    opacity  0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+ 
+  /* Remove right border from last in each row and bottom border from last row */
+  cursor: none;
+}
+ 
+/* Remove right border from every 4th item */
+.bw-item:nth-child(4n) { border-right: none; }
+/* Remove bottom border from last 4 items */
+.bw-item:nth-last-child(-n+4) { border-bottom: none; }
+ 
+/* After reveal — cells settle to muted state */
+.bw-item.bw-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+ 
+/* Logo image base state */
+.bw-logo-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 48px;
+}
+ 
+.bw-logo {
+  max-width: 130px;
+  max-height: 44px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  /* MUTED: grayscale + reduced opacity */
+  filter: grayscale(1) brightness(0.3) contrast(1);
+  opacity: 0.55;
+  transform: scale(1);
+  will-change: transform, filter, opacity;
+  transition:
+    filter    0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    opacity   0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+ 
+/* Icon-only logos (square, like Vercel) */
+.bw-logo--icon {
+  max-width: 44px;
+  max-height: 44px;
+}
+ 
+/* ── HOVER STATE ── */
+/* Grid in hover mode: dim all others */
+.bw-grid.bw-hovering .bw-item:not(.bw-hovered) .bw-logo {
+  opacity: 0.18;
+  filter: grayscale(1) brightness(0.2);
+}
+ 
+/* Hovered logo: full color, scale up */
+.bw-item.bw-hovered .bw-logo {
+  opacity: 1;
+  filter: grayscale(0) brightness(1) contrast(1);
+  transform: scale(1.06);
+}
+ 
+/* Hovered cell: slight lift */
+.bw-item.bw-hovered {
+  z-index: 2;
+}
+ 
+/* ════════════════════════════
+   Tooltip
+════════════════════════════ */
+.bw-tooltip {
+  position: fixed;
+  z-index: 9000;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px) scale(0.96);
+  transition:
+    opacity   0.22s ease,
+    transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Positioned by JS */
+  background: rgba(10,10,10,0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 8px;
+  padding: 8px 13px 9px;
+  border: 1px solid rgba(255,255,255,0.07);
+  white-space: nowrap;
+}
+ 
+.bw-tooltip.bw-tt-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+ 
+.bw-tt-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+}
+ 
+.bw-tt-cat {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.63rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.45);
+  text-transform: uppercase;
+}
+ 
+/* ════════════════════════════
+   Responsive
+════════════════════════════ */
+@media (max-width: 1024px) {
+  .bw-grid { grid-template-columns: repeat(3, 1fr); }
+  .bw-item:nth-child(4n)     { border-right: 1px solid rgba(26,10,10,0.06); }
+  .bw-item:nth-last-child(-n+4) { border-bottom: 1px solid rgba(26,10,10,0.06); }
+  .bw-item:nth-child(3n)     { border-right: none; }
+  .bw-item:nth-last-child(-n+3) { border-bottom: none; }
+}
+ 
+@media (max-width: 680px) {
+  .bw-section { padding: 80px 24px 100px; }
+  .bw-heading-block { margin-bottom: 48px; }
+ 
+  .bw-grid { grid-template-columns: repeat(2, 1fr); }
+  .bw-item { padding: 28px 20px; }
+  /* Reset 3-col borders */
+  .bw-item:nth-child(3n)     { border-right: 1px solid rgba(26,10,10,0.06); }
+  .bw-item:nth-last-child(-n+3) { border-bottom: 1px solid rgba(26,10,10,0.06); }
+  /* Apply 2-col borders */
+  .bw-item:nth-child(2n)     { border-right: none; }
+  .bw-item:nth-last-child(-n+2) { border-bottom: none; }
+}
+ 
+@media (max-width: 400px) {
+  .bw-section { padding: 64px 16px 80px; }
+  .bw-logo { max-width: 100px; }
+}
+ 
+/* Touch: no hover effects, no tooltip */
+@media (hover: none) {
+  .bw-grid.bw-hovering .bw-item:not(.bw-hovered) .bw-logo { opacity: 0.55; filter: grayscale(1) brightness(0.3); }
+  .bw-item.bw-hovered .bw-logo { opacity: 0.85; filter: grayscale(0.3) brightness(0.8); transform: scale(1); }
+  .bw-tooltip { display: none; }
+  .bw-item { cursor: auto; }
+}
+/* ═══════════════════════════
+   SECTION SHELL
+═══════════════════════════ */
+.ts-section {
+  background: var(--cream);   /* native page background — blends in */
+  padding: 100px 0 112px;
+  overflow: hidden;           /* clips carousel track overflow */
+  position: relative;
+}
+ 
+/* ═══════════════════════════
+   HEADER
+═══════════════════════════ */
+.ts-header {
+  max-width: 1320px;
+  margin: 0 auto 52px;
+  padding: 0 48px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+}
+ 
+.ts-header-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 580px;
+}
+ 
+.ts-heading {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(3rem, 6vw, 5.2rem);
+  letter-spacing: 0.01em;
+  line-height: 0.92;
+  color: #1a0a0a;
+}
+ 
+.ts-sub {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(0.9rem, 1.4vw, 1.1rem);
+  font-style: italic;
+  color: rgba(26,10,10,0.5);
+  line-height: 1.55;
+}
+ 
+/* Discover CTA button */
+.ts-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  padding: 10px 22px;
+  background: transparent;
+  border: 1.5px solid rgba(26,10,10,0.2);
+  border-radius: 100px;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #1a0a0a;
+  cursor: none;
+  transition:
+    background  0.28s ease,
+    border-color 0.28s ease,
+    color       0.28s ease;
+  width: fit-content;
+}
+.ts-cta-btn:hover {
+  background: #1a0a0a;
+  color: var(--cream);
+  border-color: #1a0a0a;
+}
+ 
+/* Desktop nav arrows */
+.ts-nav-arrows {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+  align-self: center;
+  padding-bottom: 8px;
+}
+ 
+.ts-arrow {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1.5px solid rgba(26,10,10,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: none;
+  color: #1a0a0a;
+  transition:
+    background   0.25s ease,
+    border-color 0.25s ease,
+    color        0.25s ease,
+    transform    0.3s  cubic-bezier(0.34,1.56,0.64,1);
+}
+.ts-arrow svg { width: 18px; height: 18px; }
+ 
+.ts-arrow:hover {
+  background: #1a0a0a;
+  border-color: #1a0a0a;
+  color: var(--cream);
+  transform: scale(1.08);
+}
+ 
+.ts-arrow:disabled {
+  opacity: 0.28;
+  cursor: not-allowed;
+  transform: none;
+}
+ 
+/* ═══════════════════════════
+   CAROUSEL TRACK
+═══════════════════════════ */
+.ts-track-wrap {
+  /* Full bleed — no max-width, so panels touch viewport edges */
+  padding: 0 48px;
+  /* Hide scrollbar but enable touch scroll */
+  overflow: hidden;
+  cursor: grab;
+}
+.ts-track-wrap:active { cursor: grabbing; }
+ 
+.ts-track {
+  display: flex;
+  gap: 16px;
+  will-change: transform;
+  /* JS controls translateX — no CSS transition here (rAF lerp) */
+  user-select: none;
+  padding-right: 48px; /* extra padding at end so last panel can scroll fully left */
+}
+ 
+/* ═══════════════════════════
+   PANELS
+═══════════════════════════ */
+.ts-reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: 
+    opacity 0.8s ease,
+    transform 0.8s cubic-bezier(0.16,1,0.3,1);
+}
+
+.ts-reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+.ts-panel {
+  flex-shrink: 0;
+  width: calc((100vw - 96px) / 3.2);
+
+
+  aspect-ratio: 4 / 5;   /* ✅ KEY CHANGE */
+  height: auto;          /* remove fixed height */
+  
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 26px 24px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.ts-panel:hover { transform: translateY(-4px); }
+ 
+/* Color variants */
+.ts-red    { background: #CF0000; }
+.ts-yellow { background: #FFD600; }
+.ts-black  { background: #0d0d0d; }
+ 
+/* ── Panel top row: brand + person info ── */
+.ts-panel-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+ 
+.ts-logo-area { flex: 1; }
+ 
+.ts-brand-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  display: block;
+}
+ 
+.ts-person-info {
+  text-align: right;
+  flex-shrink: 0;
+}
+ 
+.ts-person-name {
+  display: block;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+ 
+.ts-person-title {
+  display: block;
+  font-family: 'Instrument Serif', serif;
+  font-size: 0.68rem;
+  font-style: italic;
+  opacity: 0.7;
+  margin-top: 2px;
+}
+ 
+/* Color-matched text */
+.ts-red    .ts-brand-name,
+.ts-red    .ts-person-name,
+.ts-red    .ts-person-title { color: rgba(255,255,255,0.95); }
+ 
+.ts-yellow .ts-brand-name,
+.ts-yellow .ts-person-name,
+.ts-yellow .ts-person-title { color: rgba(0,0,0,0.9); }
+ 
+.ts-black  .ts-brand-name,
+.ts-black  .ts-person-name,
+.ts-black  .ts-person-title { color: rgba(255,255,255,0.9); }
+ 
+/* ── Portrait circle ── */
+.ts-portrait-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+ 
+.ts-portrait-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  /* Subtle ring that contrasts with panel color */
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.25);
+}
+ 
+.ts-yellow .ts-portrait-circle {
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.15);
+}
+ 
+.ts-portrait-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  pointer-events: none;
+}
+ 
+/* ── Quote ── */
+.ts-quote {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(0.9rem, 1.2vw, 1.0rem);
+  line-height: 1.65;
+  font-style: italic;
+  flex: 1;                     /* pushes CTA to bottom */
+  margin-bottom: 24px;
+}
+ 
+.ts-red    .ts-quote { color: rgba(255,255,255,0.92); }
+.ts-yellow .ts-quote { color: rgba(0,0,0,0.82); }
+.ts-black  .ts-quote { color: rgba(255,255,255,0.88); }
+ 
+/* ── Read more CTA ── */
+.ts-read-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: none;
+  opacity: 0.65;
+  transition: opacity 0.22s ease, gap 0.28s cubic-bezier(0.34,1.56,0.64,1);
+  margin-top: auto;
+}
+.ts-read-more svg { width: 14px; height: 14px; flex-shrink: 0; }
+.ts-read-more:hover { opacity: 1; gap: 12px; }
+ 
+.ts-red    .ts-read-more { color: #fff; }
+.ts-yellow .ts-read-more { color: #000; }
+.ts-black  .ts-read-more { color: #fff; }
+ 
+/* ═══════════════════════════
+   MOBILE DOT INDICATORS
+═══════════════════════════ */
+.ts-dots {
+  display: none;   /* hidden on desktop */
+  justify-content: center;
+  gap: 8px;
+  margin-top: 28px;
+  padding: 0 48px;
+}
+ 
+.ts-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(26,10,10,0.2);
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+ 
+.ts-dot-active {
+  background: #CF0000;
+  transform: scale(1.4);
+}
+ 
+/* ═══════════════════════════
+   RESPONSIVE
+═══════════════════════════ */
+@media (max-width: 1024px) {
+
+  .ts-track {
+    display: flex;
+    flex-direction: column;   /* ✅ STACK */
+    gap: 20px;
+    transform: none !important;
+  }
+
+  .ts-track-wrap {
+    overflow: visible;        /* ✅ remove scroll */
+    cursor: auto;
+  }
+
+  .ts-panel {
+    width: 100%;              /* full width cards */
+    aspect-ratio: 4 / 5;
+  }
+
+  .ts-nav-arrows {
+    display: none;            /* remove arrows */
+  }
+
+  .ts-dots {
+    display: none;            /* ❌ REMOVE DOTS */
+  }
+}
+/* ═══════════════════════════════════
+   SECTION SHELL
+═══════════════════════════════════ */
+.cf-section {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 560px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;
+  /* Custom property for easy overlay tuning */
+  --cf-overlay-opacity: 0.52;
+  --cf-accent: #CF0000;
+  --cf-accent-rgb: 207, 0, 0;
+}
+ 
+/* ═══════════════════════════════════
+   VIDEO BACKGROUND
+═══════════════════════════════════ */
+.cf-video-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+ 
+.cf-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  display: block;
+  /* Slight desaturation for cinematic tone */
+  filter: saturate(1) brightness(1);
+}
+ 
+/* Semi-transparent overlay */
+.cf-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, var(--cf-overlay-opacity));
+  z-index: 1;
+}
+ 
+/* Vignette — radial dark edges for depth */
+.cf-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: radial-gradient(
+    ellipse 90% 90% at 50% 50%,
+    transparent 40%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+  pointer-events: none;
+}
+ 
+/* ═══════════════════════════════════
+   CENTER CONTAINER — 2×2 button grid
+═══════════════════════════════════ */
+.cf-center {
+  position: relative;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 0 24px;
+  max-width: 680px;
+  width: 100%;
+}
+ 
+/* ═══════════════════════════════════════════════════════
+   BUTTONS — base state
+   overflow: visible so the ::before border ring can bleed
+   outside the button bounds (masked to 1.5px line)
+═══════════════════════════════════════════════════════ */
+.cf-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 120px;
+  border-radius: 18px;
+  overflow: hidden;
+  text-decoration: none;
+  cursor: none;
+  /* Transparent real border — always present for layout stability */
+  border: 1.5px solid transparent;
+  /* Glass base fill */
+  background: rgba(255, 255, 255, 0.05);
+  /* GPU-only properties in transition */
+  transition:
+    transform  0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.5s  cubic-bezier(0.22, 1, 0.36, 1),
+    background 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+  /* Staggered entrance animation */
+  opacity: 0;
+  translate: 0 20px;
+}
+ 
+/* ── Entrance animation ── */
+.cf-btn.cf-btn-visible {
+  animation: cf-btn-enter 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.cf-btn:nth-child(1).cf-btn-visible { animation-delay: 0.00s; }
+.cf-btn:nth-child(2).cf-btn-visible { animation-delay: 0.10s; }
+.cf-btn:nth-child(3).cf-btn-visible { animation-delay: 0.20s; }
+.cf-btn:nth-child(4).cf-btn-visible { animation-delay: 0.30s; }
+ 
+@keyframes cf-btn-enter {
+  from { opacity: 0; translate: 0 24px; }
+  to   { opacity: 1; translate: 0 0; }
+}
+ 
+/* ── Hover: lift + deepen background ── */
+.cf-btn:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.45),
+    0  2px 12px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255,255,255,0.10);
+}
+ 
+/* ──────────────────────────────────────────────────────
+   GRADIENT BORDER — pseudo-element technique
+   ::before carries the animated conic-gradient.
+   The mask cuts out the interior so only the 1.5px
+   border ring is visible. The conic rotates via
+   --cf-angle driven by JS rAF, giving the "energy
+   flowing around the edge" feel at controlled speed.
+────────────────────────────────────────────────────── */
+.cf-btn::before {
+  content: '';
+  position: absolute;
+  inset: -1.5px;                    /* bleeds outside real border */
+  border-radius: calc(18px + 1.5px);
+  z-index: 3;
+  pointer-events: none;
+ 
+  /* Brand palette gradient: red → amber → yellow → white → red */
+  background: conic-gradient(
+    from var(--cf-angle, 0deg),
+    #CF0000   0deg,
+    #E84800  60deg,
+    #FFD600 120deg,
+    #ffffff 160deg,
+    #FFD600 200deg,
+    #E84800 260deg,
+    #CF0000 320deg,
+    #CF0000 360deg
+  );
+ 
+  /* Mask: show only the border ring, hide interior */
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  padding: 1.5px;
+ 
+  /* Hidden by default — fades in on hover */
+  opacity: 0;
+  transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+ 
+.cf-btn:hover::before { opacity: 1; }
+ 
+/* ── Label — lifted above all layers ── */
+.cf-btn-label {
+  position: relative;
+  z-index: 5;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  letter-spacing: 0.08em;
+  color: #ffffff;
+  transition: letter-spacing 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  user-select: none;
+}
+ 
+.cf-btn:hover .cf-btn-label { letter-spacing: 0.13em; }
+ 
+/* ── Canvas — directional light sweep layer ── */
+.cf-btn-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  opacity: 0;
+  /* Fade in fast, fade out slow — feels like light settling */
+  transition: opacity 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+  border-radius: inherit;
+}
+.cf-btn:hover .cf-btn-canvas { opacity: 1; }
+ 
+/* ── Glow — cursor-tracking radial bloom ── */
+/* --cf-mx / --cf-my updated by JS on mousemove */
+.cf-btn-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: inherit;
+  /* Two-layer glow: white gloss center + red warmth at edges */
+  background:
+    radial-gradient(
+      ellipse 65% 55% at var(--cf-mx, 50%) var(--cf-my, 50%),
+      rgba(255, 255, 255, 0.11) 0%,
+      rgba(255, 255, 255, 0.02) 55%,
+      transparent 100%
+    ),
+    radial-gradient(
+      ellipse 90% 80% at var(--cf-mx, 50%) var(--cf-my, 50%),
+      rgba(207, 0, 0, 0.10) 0%,
+      transparent 70%
+    );
+  opacity: 0;
+  transition: opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  /* background-position must NOT transition — we want instant tracking */
+}
+.cf-btn:hover .cf-btn-glow { opacity: 1; }
+ 
+/* Unused border span kept for HTML compatibility — invisible */
+.cf-btn-border { display: none; }
+ 
+/* ═══════════════════════════════════
+   SCROLL HINT
+═══════════════════════════════════ */
+.cf-scroll-hint {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+ 
+.cf-scroll-line {
+  display: block;
+  width: 1px;
+  height: 44px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.5), transparent);
+  animation: cf-line-pulse 2.2s ease-in-out infinite;
+}
+ 
+@keyframes cf-line-pulse {
+  0%, 100% { opacity: 0.25; transform: scaleY(0.8); }
+  50%       { opacity: 0.8;  transform: scaleY(1); }
+}
+ 
+/* ═══════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════ */
+@media (max-width: 768px) {
+  .cf-center {
+    grid-template-columns: 1fr;
+    max-width: 360px;
+    gap: 14px;
+  }
+  .cf-btn { height: 100px; }
+  .cf-btn-label { font-size: clamp(1.8rem, 7vw, 2.4rem); }
+}
+ 
+@media (max-width: 480px) {
+  .cf-section { min-height: 100svh; }
+  .cf-center { padding: 0 16px; gap: 12px; }
+  .cf-btn { height: 88px; border-radius: 14px; }
+}
+ 
+/* Touch devices — restore pointer + disable cursor effects */
+@media (hover: none) {
+  .cf-btn { cursor: pointer; }
+  /* Disable ::before gradient border on touch (no hover) */
+  .cf-btn::before { display: none; }
+  /* Disable canvas effect on touch */
+  .cf-btn-canvas { display: none; }
+  .cf-btn-glow   { display: none; }
+  /* Simplified tap feedback */
+  .cf-btn:active {
+    transform: scale(0.97);
+    background: rgba(207, 0, 0, 0.14);
+    box-shadow: 0 0 0 1.5px rgba(207, 0, 0, 0.5);
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+}
 </style>
 </head>
 <body>
@@ -976,7 +1921,7 @@
   <div class="hero-content">
     <p class="hero-eyebrow">Creative Studio</p>
     <h1>We design <em>Bold.</em><br>We deploy fast.</h1>
-    <p class="hero-sub">Look at what we have been designing</p>
+    <p class="hero-sub">Look at what we have been building</p>
   </div>
   <div class="hero-scroll-hint">
     <div class="scroll-line"></div>
@@ -1178,6 +2123,418 @@
   <span class="cu-corner-label" aria-hidden="true">Contact</span>
  
 </section>
+<!-- ═══════════════════════════════════════════════════════════════
+     BRANDS / CLIENTS SECTION
+     Editorial logo grid · scroll-triggered monument reveal
+════════════════════════════════════════════════════════════════ -->
+<section class="bw-section" id="brands" aria-label="Brands we have worked with">
+ 
+  <!-- Grain noise overlay (pure CSS, no image) -->
+  <div class="bw-grain" aria-hidden="true"></div>
+ 
+  <!-- Sweep light — animates across grid on scroll entry -->
+  <div class="bw-sweep" aria-hidden="true"></div>
+ 
+  <div class="bw-inner">
+ 
+    <!-- ── Heading block ── -->
+    <div class="bw-heading-block">
+      <span class="bw-eyebrow">Selected Clients</span>
+      <h2 class="bw-heading">Brands we've<br>built with.</h2>
+      <p class="bw-sub">From early-stage ideas to production-ready systems.</p>
+    </div>
+ 
+    <!-- ── Logo grid ── -->
+    <div class="bw-grid" id="bw-grid" role="list">
+ 
+      <!-- Each .bw-item is one logo cell -->
+      <!-- data-brand and data-cat drive the tooltip -->
+ 
+      <div class="bw-item" role="listitem" data-brand="Notion" data-cat="Product Design">
+        <div class="bw-logo-wrap">
+          <img src="res/Brands/favicon.png"
+               alt="Notion" class="bw-logo" loading="lazy" width="120" height="40">
+        </div>
+      </div>
+ 
+      <div class="bw-item" role="listitem" data-brand="Figma" data-cat="UI/UX Design">
+        <div class="bw-logo-wrap">
+          <img src="res/Brands/logo (2).png"
+               alt="Figma" class="bw-logo" loading="lazy" width="32" height="48">
+        </div>
+      </div>
+ 
+      <div class="bw-item" role="listitem" data-brand="Shopify" data-cat="E-commerce Dev">
+        <div class="bw-logo-wrap">
+          <img src="res/Brands/logo (3).png"
+               alt="Shopify" class="bw-logo" loading="lazy" width="120" height="34">
+        </div>
+      </div>
+ 
+      <div class="bw-item" role="listitem" data-brand="Stripe" data-cat="Web Development">
+        <div class="bw-logo-wrap">
+          <img src="res/Brands/logo-full.png"
+               alt="Stripe" class="bw-logo" loading="lazy" width="120" height="50">
+        </div>
+      </div>
+ 
+      <div class="bw-item" role="listitem" data-brand="Vercel" data-cat="Brand Identity">
+        <div class="bw-logo-wrap">
+          <img src="res/Brands/logo-black.png"
+               alt="Vercel" class="bw-logo bw-logo--icon" loading="lazy" width="48" height="48">
+        </div>
+      </div>
+ 
+      <div class="bw-item" role="listitem" data-brand="Linear" data-cat="UI/UX Design">
+        <div class="bw-logo-wrap">
+          <img src="res/Brands/logo1.png"
+               alt="Linear" class="bw-logo" loading="lazy" width="120" height="36">
+        </div>
+      </div>
+ 
+      <div class="bw-item" role="listitem" data-brand="Loom" data-cat="Motion Graphics">
+        <div class="bw-logo-wrap">
+          <img src="res/Brands/logo_header.png"
+               alt="Loom" class="bw-logo" loading="lazy" width="120" height="36">
+        </div>
+      </div>
+ 
+      <div class="bw-item" role="listitem" data-brand="Webflow" data-cat="Web Development">
+        <div class="bw-logo-wrap">
+          <img src="res/Brands/logo_nobg.png"
+               alt="Webflow" class="bw-logo" loading="lazy" width="120" height="36">
+        </div>
+      </div>
+ 
+      <div class="bw-item" role="listitem" data-brand="Framer" data-cat="Landing Page Design">
+        <div class="bw-logo-wrap">
+          <img src="res/Brands/logoof.png"
+               alt="Framer" class="bw-logo" loading="lazy" width="120" height="36">
+        </div>
+      </div>
+ 
+      <div class="bw-item" role="listitem" data-brand="Airtable" data-cat="Product Design">
+        <div class="bw-logo-wrap">
+          <img src="res/Brands/logo2.png"
+               alt="Airtable" class="bw-logo" loading="lazy" width="120" height="32">
+        </div>
+      </div>
+ 
+      <div class="bw-item" role="listitem" data-brand="Miro" data-cat="UI/UX Design">
+        <div class="bw-logo-wrap">
+          <img src="res/Brands/logo5.png"
+               alt="Miro" class="bw-logo" loading="lazy" width="120" height="38">
+        </div>
+      </div>
+ 
+      <div class="bw-item" role="listitem" data-brand="Intercom" data-cat="Web Development">
+        <div class="bw-logo-wrap">
+          <img src="res/Brands/logo7.png"
+               alt="Intercom" class="bw-logo" loading="lazy" width="120" height="36">
+        </div>
+      </div>
+ 
+    </div>
+    <!-- /bw-grid -->
+ 
+  </div>
+  <!-- /bw-inner -->
+ 
+  <!-- Floating tooltip — moved by JS near cursor -->
+  <div class="bw-tooltip" id="bw-tooltip" aria-hidden="true">
+    <span class="bw-tt-name" id="bw-tt-name"></span>
+    <span class="bw-tt-cat"  id="bw-tt-cat"></span>
+  </div>
+ 
+</section>
+<!-- ═══════════════════════════════════════════════════════════════
+     TESTIMONIAL CAROUSEL SECTION
+     "Meet the teams we empower"
+     6 panels — alternating #cf0000 / #FFD600 / #000
+════════════════════════════════════════════════════════════════ -->
+<section class="ts-section" id="testimonials" aria-label="Testimonials">
+ 
+  <!-- ── Header ── -->
+  <div class="ts-header">
+    <div class="ts-header-inner ts-reveal">
+      <h2 class="ts-heading">Meet the teams<br>we empower.</h2>
+      <p class="ts-sub">Real stories from founders and teams building with us.</p>
+      <button class="ts-cta-btn" aria-label="Discover success stories">
+        Discover success stories
+      </button>
+    </div>
+    <!-- Desktop nav arrows -->
+    <div class="ts-nav-arrows">
+      <button class="ts-arrow ts-arrow-prev" id="ts-prev" aria-label="Previous testimonial">
+        <svg viewBox="0 0 20 20" fill="none"><polyline points="13,4 7,10 13,16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="ts-arrow ts-arrow-next" id="ts-next" aria-label="Next testimonial">
+        <svg viewBox="0 0 20 20" fill="none"><polyline points="7,4 13,10 7,16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+ 
+  <!-- ── Carousel track wrapper ── -->
+  <div class="ts-track-wrap" id="ts-track-wrap">
+    <div class="ts-track" id="ts-track">
+ 
+      <!-- ── PANEL 1 — #cf0000 ── -->
+      <div class="ts-panel ts-red " data-index="0">
+        <div class="ts-panel-top">
+          <div class="ts-logo-area">
+            <span class="ts-brand-name">Lumina Health</span>
+          </div>
+          <div class="ts-person-info">
+            <span class="ts-person-name">Sarah Chen</span>
+            <span class="ts-person-title">Co-founder & CEO</span>
+          </div>
+        </div>
+        <div class="ts-portrait-wrap">
+          <div class="ts-portrait-circle">
+            <img
+              src="https://randomuser.me/api/portraits/women/44.jpg"
+              alt="Sarah Chen"
+              class="ts-portrait-img"
+              loading="lazy"
+            >
+          </div>
+        </div>
+        <blockquote class="ts-quote">
+          "The design system they built for us became the foundation of our entire product. Ship velocity doubled within 6 weeks."
+        </blockquote>
+        <button class="ts-read-more" aria-label="Read full story">
+          Read the full story
+          <svg viewBox="0 0 16 16" fill="none"><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><polyline points="9,3 14,8 9,13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+ 
+      <!-- ── PANEL 2 — #FFD600 ── -->
+      <div class="ts-panel ts-yellow" data-index="1">
+        <div class="ts-panel-top">
+          <div class="ts-logo-area">
+            <span class="ts-brand-name">Archway Capital</span>
+          </div>
+          <div class="ts-person-info">
+            <span class="ts-person-name">Marcus Webb</span>
+            <span class="ts-person-title">Managing Partner</span>
+          </div>
+        </div>
+        <div class="ts-portrait-wrap">
+          <div class="ts-portrait-circle">
+            <img
+              src="https://randomuser.me/api/portraits/men/32.jpg"
+              alt="Marcus Webb"
+              class="ts-portrait-img"
+              loading="lazy"
+            >
+          </div>
+        </div>
+        <blockquote class="ts-quote">
+          "We had three failed redesigns before them. Within 12 weeks we had a product that finally matched the ambition of our brand."
+        </blockquote>
+        <button class="ts-read-more" aria-label="Read full story">
+          Read the full story
+          <svg viewBox="0 0 16 16" fill="none"><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><polyline points="9,3 14,8 9,13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+ 
+      <!-- ── PANEL 3 — black ── -->
+      <div class="ts-panel ts-black" data-index="2">
+        <div class="ts-panel-top">
+          <div class="ts-logo-area">
+            <span class="ts-brand-name">Northstar AI</span>
+          </div>
+          <div class="ts-person-info">
+            <span class="ts-person-name">Priya Nair</span>
+            <span class="ts-person-title">Founder & CTO</span>
+          </div>
+        </div>
+        <div class="ts-portrait-wrap">
+          <div class="ts-portrait-circle">
+            <img
+              src="https://randomuser.me/api/portraits/women/68.jpg"
+              alt="Priya Nair"
+              class="ts-portrait-img"
+              loading="lazy"
+            >
+          </div>
+        </div>
+        <blockquote class="ts-quote">
+          "They're the only studio I've worked with that treats design and engineering as the same problem. The output is immaculate."
+        </blockquote>
+        <button class="ts-read-more" aria-label="Read full story">
+          Read the full story
+          <svg viewBox="0 0 16 16" fill="none"><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><polyline points="9,3 14,8 9,13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+ 
+      <!-- ── PANEL 4 — #cf0000 ── -->
+      <div class="ts-panel ts-red" data-index="3">
+        <div class="ts-panel-top">
+          <div class="ts-logo-area">
+            <span class="ts-brand-name">Veldt Studio</span>
+          </div>
+          <div class="ts-person-info">
+            <span class="ts-person-name">James Okafor</span>
+            <span class="ts-person-title">Creative Director</span>
+          </div>
+        </div>
+        <div class="ts-portrait-wrap">
+          <div class="ts-portrait-circle">
+            <img
+              src="https://randomuser.me/api/portraits/men/75.jpg"
+              alt="James Okafor"
+              class="ts-portrait-img"
+              loading="lazy"
+            >
+          </div>
+        </div>
+        <blockquote class="ts-quote">
+          "Our conversion rate jumped 40% in the first month. More importantly, we finally feel proud to show people our product."
+        </blockquote>
+        <button class="ts-read-more" aria-label="Read full story">
+          Read the full story
+          <svg viewBox="0 0 16 16" fill="none"><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><polyline points="9,3 14,8 9,13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+ 
+      <!-- ── PANEL 5 — #FFD600 ── -->
+      <div class="ts-panel ts-yellow" data-index="4">
+        <div class="ts-panel-top">
+          <div class="ts-logo-area">
+            <span class="ts-brand-name">Crestline SaaS</span>
+          </div>
+          <div class="ts-person-info">
+            <span class="ts-person-name">Elena Vasquez</span>
+            <span class="ts-person-title">VP Product</span>
+          </div>
+        </div>
+        <div class="ts-portrait-wrap">
+          <div class="ts-portrait-circle">
+            <img
+              src="https://randomuser.me/api/portraits/women/90.jpg"
+              alt="Elena Vasquez"
+              class="ts-portrait-img"
+              loading="lazy"
+            >
+          </div>
+        </div>
+        <blockquote class="ts-quote">
+          "I've worked with 5 agencies in 3 years. None of them understood both brand and product depth the way this studio does."
+        </blockquote>
+        <button class="ts-read-more" aria-label="Read full story">
+          Read the full story
+          <svg viewBox="0 0 16 16" fill="none"><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><polyline points="9,3 14,8 9,13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+ 
+      <!-- ── PANEL 6 — black ── -->
+      <div class="ts-panel ts-black" data-index="5">
+        <div class="ts-panel-top">
+          <div class="ts-logo-area">
+            <span class="ts-brand-name">Deeproot Labs</span>
+          </div>
+          <div class="ts-person-info">
+            <span class="ts-person-name">Tom Richter</span>
+            <span class="ts-person-title">Head of Engineering</span>
+          </div>
+        </div>
+        <div class="ts-portrait-wrap">
+          <div class="ts-portrait-circle">
+            <img
+              src="https://randomuser.me/api/portraits/men/58.jpg"
+              alt="Tom Richter"
+              class="ts-portrait-img"
+              loading="lazy"
+            >
+          </div>
+        </div>
+        <blockquote class="ts-quote">
+          "They shipped our entire design system, component library, and production frontend in 8 weeks flat. Genuinely remarkable."
+        </blockquote>
+        <button class="ts-read-more" aria-label="Read full story">
+          Read the full story
+          <svg viewBox="0 0 16 16" fill="none"><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><polyline points="9,3 14,8 9,13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+ 
+    </div><!-- /ts-track -->
+  </div><!-- /ts-track-wrap -->
+ 
+  <!-- Mobile-only dot indicators -->
+  <div class="ts-dots" id="ts-dots" aria-hidden="true">
+    <span class="ts-dot ts-dot-active"></span>
+    <span class="ts-dot"></span>
+    <span class="ts-dot"></span>
+    <span class="ts-dot"></span>
+    <span class="ts-dot"></span>
+    <span class="ts-dot"></span>
+  </div>
+ 
+</section>
+<!-- ── END TESTIMONIALS ── -->
+<section class="cf-section" id="cf-section" aria-label="Site navigation">
+ 
+  <!-- ── Video background ── -->
+  <div class="cf-video-wrap" aria-hidden="true">
+    <video
+      class="cf-video"
+      id="cf-video"
+      autoplay muted loop playsinline
+      preload="auto"
+    >
+      <!--
+        Replace these src values with your own video file.
+        The fallback uses a free Pexels MP4. Works offline once cached.
+      -->
+      <source src="res/filler-vid.mp4" type="video/mp4">
+    </video>
+    <!-- Cinematic dark overlay — tunable via --cf-overlay-opacity -->
+    <div class="cf-overlay" aria-hidden="true"></div>
+    <!-- Subtle vignette for depth -->
+    <div class="cf-vignette" aria-hidden="true"></div>
+  </div>
+ 
+  <!-- ── Foreground: 4 navigation buttons ── -->
+  <div class="cf-center" role="navigation" aria-label="Quick navigation">
+ 
+    <a href="#" class="cf-btn" data-label="Work" aria-label="View our work">
+      <span class="cf-btn-label">Work</span>
+      <!-- Animated internal canvas — driven by JS WebGL/canvas per button -->
+      <canvas class="cf-btn-canvas" aria-hidden="true"></canvas>
+      <span class="cf-btn-border" aria-hidden="true"></span>
+      <span class="cf-btn-glow" aria-hidden="true"></span>
+    </a>
+ 
+    <a href="#" class="cf-btn" data-label="About" aria-label="About us">
+      <span class="cf-btn-label">About</span>
+      <canvas class="cf-btn-canvas" aria-hidden="true"></canvas>
+      <span class="cf-btn-border" aria-hidden="true"></span>
+      <span class="cf-btn-glow" aria-hidden="true"></span>
+    </a>
+ 
+    <a href="#" class="cf-btn" data-label="Services" aria-label="Our services">
+      <span class="cf-btn-label">Services</span>
+      <canvas class="cf-btn-canvas" aria-hidden="true"></canvas>
+      <span class="cf-btn-border" aria-hidden="true"></span>
+      <span class="cf-btn-glow" aria-hidden="true"></span>
+    </a>
+ 
+    <a href="#" class="cf-btn" data-label="Contact" aria-label="Contact us">
+      <span class="cf-btn-label">Contact</span>
+      <canvas class="cf-btn-canvas" aria-hidden="true"></canvas>
+      <span class="cf-btn-border" aria-hidden="true"></span>
+      <span class="cf-btn-glow" aria-hidden="true"></span>
+    </a>
+ 
+  </div>
+ 
+  <!-- Scroll-hint line at bottom -->
+  <div class="cf-scroll-hint" aria-hidden="true">
+    <span class="cf-scroll-line"></span>
+  </div>
+ 
+</section>
 <!-- ─── FOOTER ─── -->
 <footer class="footer-strip">
   <a href="#" class="logo" style="font-size:1.2rem;">
@@ -1197,7 +2554,21 @@
   </a>
   <p>© 2025 Design & Deploy. All rights reserved.</p>
 </footer>
+<script>
+const revealElements = document.querySelectorAll('.ts-reveal');
 
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('active');
+    }
+  });
+}, {
+  threshold: 0.2
+});
+
+revealElements.forEach(el => observer.observe(el));
+</script>
 <script>
 'use strict';
  
@@ -1943,6 +3314,581 @@
     card.style.minHeight = card.offsetHeight + 'px';
     card.classList.add('cu-success');
   });
+ 
+})();
+(function initBrands() {
+  'use strict';
+ 
+  var section      = document.getElementById('brands');
+  var grid         = document.getElementById('bw-grid');
+  var sweep        = section && section.querySelector('.bw-sweep');
+  var headingBlock = section && section.querySelector('.bw-heading-block');
+  var tooltip      = document.getElementById('bw-tooltip');
+  var ttName       = document.getElementById('bw-tt-name');
+  var ttCat        = document.getElementById('bw-tt-cat');
+  var cursor       = document.getElementById('cursor');
+ 
+  if (!section || !grid) return;
+ 
+  var items = Array.prototype.slice.call(grid.querySelectorAll('.bw-item'));
+ 
+  /* ════════════════════════════════════════════════════════════
+     1. SCROLL-TRIGGERED STAGGERED REVEAL
+        IntersectionObserver fires once grid enters viewport.
+        Each item gets a progressively larger animation delay
+        creating the stone→polished sweep feel.
+        Sweep light fires simultaneously.
+  ════════════════════════════════════════════════════════════ */
+  var hasRevealed = false;
+ 
+  var STAGGER_MS = 95;     // ms between each logo
+  var EASE_DUR   = 700;    // ms — CSS duration for each item reveal
+ 
+  /* Inject per-item reveal keyframe via inline style */
+  function revealItems() {
+    if (hasRevealed) return;
+    hasRevealed = true;
+ 
+    /* Trigger heading text reveal */
+    if (headingBlock) headingBlock.classList.add('bw-text-revealed');
+ 
+    /* Fire sweep light */
+    if (sweep) {
+      /* Small RAF delay so the CSS transition picks up */
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() { sweep.classList.add('bw-sweep--run'); });
+      });
+    }
+ 
+    /* Stagger each logo item */
+    items.forEach(function(item, i) {
+      var delay = i * STAGGER_MS;
+      /* Set CSS transition with staggered delay */
+      item.style.transition =
+        'opacity ' + (EASE_DUR / 1000) + 's cubic-bezier(0.16,1,0.3,1) ' + (delay / 1000) + 's,' +
+        'transform ' + (EASE_DUR / 1000) + 's cubic-bezier(0.16,1,0.3,1) ' + (delay / 1000) + 's';
+ 
+      /* Force a reflow before adding class to ensure transition fires */
+      setTimeout(function() {
+        item.classList.add('bw-revealed');
+        /* After item is fully revealed, set it to its resting muted state */
+        /* (transition is already done — just set the opacity via the base .bw-revealed class) */
+      }, 16 + delay);
+    });
+  }
+ 
+  /* Observer — fires when grid is 15% in viewport */
+  var revealObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) revealItems();
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+ 
+  revealObserver.observe(grid);
+ 
+  /* ════════════════════════════════════════════════════════════
+     2. HEADING PARALLAX — very subtle (1–2px) on scroll
+        Uses rAF-lerped value to avoid janky direct updates.
+  ════════════════════════════════════════════════════════════ */
+  var rawParallax  = 0;   /* target Y offset */
+  var dispParallax = 0;   /* smoothed display value */
+  var P_LERP       = 0.06;
+ 
+  var sectionTop   = 0;
+  var sectionH     = 0;
+ 
+  function updateParallaxTarget() {
+    var rect = section.getBoundingClientRect();
+    sectionTop = rect.top;
+    sectionH   = rect.height;
+    /* Map section position in viewport to a [-8, 8] px range */
+    var progress = 1 - (sectionTop + sectionH / 2) / (window.innerHeight + sectionH / 2);
+    rawParallax = (progress - 0.5) * 16;   /* ±8px travel */
+  }
+ 
+  window.addEventListener('scroll', updateParallaxTarget, { passive: true });
+  updateParallaxTarget();
+ 
+  (function parallaxTick() {
+    dispParallax += (rawParallax - dispParallax) * P_LERP;
+    if (headingBlock) {
+      headingBlock.style.transform = 'translateY(' + (dispParallax * 0.5).toFixed(2) + 'px)';
+    }
+    requestAnimationFrame(parallaxTick);
+  })();
+ 
+  /* ════════════════════════════════════════════════════════════
+     3. HOVER — focus isolation + tooltip
+  ════════════════════════════════════════════════════════════ */
+  /* Tooltip position — lerped to cursor */
+  var ttTargetX = 0, ttTargetY = 0;
+  var ttX = 0, ttY = 0;
+  var TT_LERP = 0.14;
+  var ttActive = false;
+  var TT_OFFSET_X = 18, TT_OFFSET_Y = -36;
+ 
+  document.addEventListener('mousemove', function(e) {
+    ttTargetX = e.clientX;
+    ttTargetY = e.clientY;
+  });
+ 
+  (function ttTick() {
+    if (ttActive) {
+      ttX += (ttTargetX - ttX) * TT_LERP;
+      ttY += (ttTargetY - ttY) * TT_LERP;
+      if (tooltip) {
+        tooltip.style.left = (ttX + TT_OFFSET_X) + 'px';
+        tooltip.style.top  = (ttY + TT_OFFSET_Y) + 'px';
+      }
+    }
+    requestAnimationFrame(ttTick);
+  })();
+ 
+  items.forEach(function(item) {
+    item.addEventListener('mouseenter', function() {
+      /* Focus isolation */
+      grid.classList.add('bw-hovering');
+      item.classList.add('bw-hovered');
+ 
+      /* Tooltip */
+      if (tooltip && ttName && ttCat) {
+        ttName.textContent = item.getAttribute('data-brand') || '';
+        ttCat.textContent  = item.getAttribute('data-cat')   || '';
+        ttX = ttTargetX; ttY = ttTargetY; /* snap initial position */
+        tooltip.classList.add('bw-tt-visible');
+        ttActive = true;
+      }
+ 
+      /* Custom cursor */
+      if (cursor) cursor.classList.add('hover');
+    });
+ 
+    item.addEventListener('mouseleave', function() {
+      grid.classList.remove('bw-hovering');
+      item.classList.remove('bw-hovered');
+      if (tooltip) tooltip.classList.remove('bw-tt-visible');
+      ttActive = false;
+      if (cursor) cursor.classList.remove('hover');
+    });
+  });
+ 
+})();
+(function initTestimonials() {
+  'use strict';
+ 
+  var section   = document.getElementById('testimonials');
+  var trackWrap = document.getElementById('ts-track-wrap');
+  var track     = document.getElementById('ts-track');
+  var prevBtn   = document.getElementById('ts-prev');
+  var nextBtn   = document.getElementById('ts-next');
+  var dotsWrap  = document.getElementById('ts-dots');
+  var cursor    = document.getElementById('cursor');
+ 
+  if (!section || !track || !trackWrap) return;
+ 
+  var panels    = Array.from(track.querySelectorAll('.ts-panel'));
+  var dots      = dotsWrap ? Array.from(dotsWrap.querySelectorAll('.ts-dot')) : [];
+  var total     = panels.length;
+ 
+  /* ════════════════════════════════════════════════════
+     LAYOUT CONSTANTS — computed after first paint
+  ════════════════════════════════════════════════════ */
+  var GAP    = 16;  /* px — matches CSS gap */
+  var panelW = 0;   /* computed in measure() */
+ 
+  function measure() {
+    if (panels[0]) panelW = panels[0].getBoundingClientRect().width;
+  }
+ 
+  measure();
+  window.addEventListener('resize', function() { measure(); clampAndApply(); });
+ 
+  /* ════════════════════════════════════════════════════
+     STATE
+  ════════════════════════════════════════════════════ */
+  var currentIndex = 0;     /* which panel is "active" (leftmost) */
+  var targetX = 0;          /* pixel offset we want */
+  var currentX = 0;         /* pixel offset currently rendered */
+  var LERP = 0.085;         /* smoothing — lower = more inertia */
+  var rafId = null;
+ 
+  function lp(a, b, t) { return a + (b - a) * t; }
+ 
+  /* Max scroll: last panel at left edge (or near it) */
+  function maxOffset() {
+    /* On desktop show 3+ panels; on mobile show 1 */
+    var visible = trackWrap.offsetWidth;
+    var fullW   = total * (panelW + GAP) - GAP;
+    return Math.max(0, fullW - visible);
+  }
+ 
+  function indexToX(idx) {
+    return Math.min(idx * (panelW + GAP), maxOffset());
+  }
+ 
+  function clampAndApply() {
+    targetX = indexToX(currentIndex);
+  }
+ 
+  /* ════════════════════════════════════════════════════
+     rAF RENDER LOOP — lerp toward targetX
+  ════════════════════════════════════════════════════ */
+  function tick() {
+    currentX = lp(currentX, targetX, LERP);
+ 
+    /* Stop when close enough */
+    if (Math.abs(targetX - currentX) < 0.12) {
+      currentX = targetX;
+      track.style.transform = 'translateX(' + (-currentX).toFixed(2) + 'px)';
+      rafId = null;
+      return;
+    }
+ 
+    track.style.transform = 'translateX(' + (-currentX).toFixed(2) + 'px)';
+    rafId = requestAnimationFrame(tick);
+  }
+ 
+  function startTick() {
+    if (!rafId) rafId = requestAnimationFrame(tick);
+  }
+ 
+  /* ════════════════════════════════════════════════════
+     NAVIGATION
+  ════════════════════════════════════════════════════ */
+  function goTo(idx) {
+    /* Clamp to valid range */
+    idx = Math.max(0, Math.min(idx, total - 1));
+    currentIndex = idx;
+    targetX = indexToX(idx);
+    updateUI();
+    startTick();
+  }
+ 
+  function updateUI() {
+    /* Arrows */
+    if (prevBtn) prevBtn.disabled = (currentIndex === 0);
+    if (nextBtn) nextBtn.disabled = (currentIndex >= total - 1);
+ 
+    /* Dots */
+    dots.forEach(function(d, i) {
+      d.classList.toggle('ts-dot-active', i === currentIndex);
+    });
+  }
+ 
+  if (prevBtn) prevBtn.addEventListener('click', function() { goTo(currentIndex - 1); });
+  if (nextBtn) nextBtn.addEventListener('click', function() { goTo(currentIndex + 1); });
+ 
+  /* Initial state */
+  updateUI();
+ 
+  /* ════════════════════════════════════════════════════
+     DRAG / SWIPE — mouse + touch
+     Tracks velocity for momentum throw on release.
+  ════════════════════════════════════════════════════ */
+  var isDragging   = false;
+  var dragStartX   = 0;
+  var dragStartScroll = 0;
+  var velX         = 0;
+  var lastDragX    = 0;
+  var lastDragTime = 0;
+ 
+  function dragStart(pageX) {
+    isDragging      = true;
+    dragStartX      = pageX;
+    dragStartScroll = currentX;
+    velX            = 0;
+    lastDragX       = pageX;
+    lastDragTime    = performance.now();
+    /* While dragging, cut lerp for instant feel */
+    LERP = 0.35;
+  }
+ 
+  function dragMove(pageX) {
+    if (!isDragging) return;
+    var dx   = pageX - dragStartX;
+    var now  = performance.now();
+    var dt   = Math.max(now - lastDragTime, 1);
+ 
+    /* Velocity in px/ms — for momentum */
+    velX = (pageX - lastDragX) / dt;
+    lastDragX   = pageX;
+    lastDragTime = now;
+ 
+    targetX = Math.max(0, Math.min(dragStartScroll - dx, maxOffset()));
+    startTick();
+  }
+ 
+  function dragEnd() {
+    if (!isDragging) return;
+    isDragging = false;
+    LERP = 0.085;   /* restore smooth lerp */
+ 
+    /* Momentum: throw based on velocity */
+    var momentum = velX * -220;
+    var thrown   = Math.max(0, Math.min(currentX + momentum, maxOffset()));
+ 
+    /* Snap to nearest panel */
+    var snapIdx  = Math.round(thrown / (panelW + GAP));
+    goTo(snapIdx);
+  }
+ 
+  /* Mouse events */
+  trackWrap.addEventListener('mousedown', function(e) {
+    dragStart(e.pageX);
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', function(e) { dragMove(e.pageX); });
+  window.addEventListener('mouseup',   dragEnd);
+ 
+  /* Touch events */
+  trackWrap.addEventListener('touchstart', function(e) {
+    dragStart(e.touches[0].pageX);
+  }, { passive: true });
+  trackWrap.addEventListener('touchmove', function(e) {
+    dragMove(e.touches[0].pageX);
+  }, { passive: true });
+  trackWrap.addEventListener('touchend',  dragEnd);
+ 
+  /* ════════════════════════════════════════════════════
+     CURSOR hover wiring
+  ════════════════════════════════════════════════════ */
+  var interactiveEls = section.querySelectorAll('.ts-arrow, .ts-cta-btn, .ts-read-more');
+  interactiveEls.forEach(function(el) {
+    el.addEventListener('mouseenter', function() { if (cursor) cursor.classList.add('hover'); });
+    el.addEventListener('mouseleave', function() { if (cursor) cursor.classList.remove('hover'); });
+  });
+ 
+  /* Cursor state: normal pointer inside track */
+  trackWrap.addEventListener('mouseenter', function() { if (cursor) cursor.classList.add('hover'); });
+  trackWrap.addEventListener('mouseleave', function() { if (cursor) cursor.classList.remove('hover'); });
+ 
+})();
+(function initCinematicFiller() {
+  'use strict';
+ 
+  var section = document.getElementById('cf-section');
+  var cursor  = document.getElementById('cursor');
+  if (!section) return;
+ 
+  var buttons = Array.from(section.querySelectorAll('.cf-btn'));
+ 
+  /* ════════════════════════════════════════════════════════════
+     1. ENTRANCE ANIMATION — IntersectionObserver
+     Stagger buttons when section enters viewport.
+  ════════════════════════════════════════════════════════════ */
+  var entered = false;
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting && !entered) {
+        entered = true;
+        buttons.forEach(function(btn) {
+          btn.classList.add('cf-btn-visible');
+        });
+        observer.disconnect();
+      }
+    });
+  }, { threshold: 0.15 });
+  observer.observe(section);
+ 
+  /* ════════════════════════════════════════════════════════════
+     2. ANIMATED GRADIENT BORDER — ::before conic rotation
+     ──────────────────────────────────────────────────────────
+     Each hovered button gets its own rAF loop rotating
+     --cf-angle at a deliberately slow, controlled speed.
+     Buttons start at different phase offsets so they never
+     look synchronised. Idle buttons cost zero computation.
+ 
+     Speed is expressed in deg/frame at 60fps:
+       0.6 deg/frame × 60fps = 36 deg/sec → one full lap ~10 s
+     This matches the "energy flowing, not spinning" requirement.
+  ════════════════════════════════════════════════════════════ */
+  var BORDER_DEG_PER_FRAME = 0.6;          /* slow, controlled */
+  var phaseOffsets = [0, 90, 180, 270];    /* stagger per button */
+  var angles       = phaseOffsets.slice(); /* live angle state */
+  var hoveredBtns  = new Set();
+  var borderRafId  = null;
+ 
+  function borderLoop() {
+    var anyHovered = hoveredBtns.size > 0;
+    if (!anyHovered) { borderRafId = null; return; }
+ 
+    hoveredBtns.forEach(function(btn) {
+      var i = buttons.indexOf(btn);
+      if (i < 0) return;
+      angles[i] = (angles[i] + BORDER_DEG_PER_FRAME) % 360;
+      btn.style.setProperty('--cf-angle', angles[i].toFixed(2) + 'deg');
+    });
+ 
+    borderRafId = requestAnimationFrame(borderLoop);
+  }
+ 
+  /* ════════════════════════════════════════════════════════════
+     3. PER-BUTTON CANVAS — directional light sweep
+     ──────────────────────────────────────────────────────────
+     The canvas draws a single soft light cone that emanates
+     FROM the current cursor position, sweeping outward.
+     On mousemove the cone instantly repositions (no lerp —
+     the spec says "fluid and responsive, not laggy").
+     On mouseleave the canvas fades via CSS opacity and we
+     clear it after the transition completes.
+ 
+     We draw three layers, all composited additively:
+       A. Cursor-centered radial gloss (white, very soft)
+       B. Diagonal shimmer streak (slow autonomous oscillation)
+       C. Red warmth pulse at the cursor-opposite corner
+  ════════════════════════════════════════════════════════════ */
+  buttons.forEach(function(btn, idx) {
+    var canvas = btn.querySelector('.cf-btn-canvas');
+    if (!canvas) return;
+ 
+    var ctx      = canvas.getContext('2d');
+    var drawRaf  = null;
+    var isHover  = false;
+    var mouseX   = 0.5; /* normalised 0–1 within button */
+    var mouseY   = 0.5;
+    var t        = idx * 55; /* autonomous oscillation phase offset */
+ 
+    /* Cache button rect — updated on enter + resize */
+    var btnRect = { width: 0, height: 0 };
+ 
+    function syncCanvasSize() {
+      var r = btn.getBoundingClientRect();
+      btnRect.width  = r.width;
+      btnRect.height = r.height;
+      /* Only resize if dimensions actually changed — avoids
+         clearing the canvas on every mousemove */
+      if (canvas.width  !== Math.floor(r.width) ||
+          canvas.height !== Math.floor(r.height)) {
+        canvas.width  = Math.floor(r.width);
+        canvas.height = Math.floor(r.height);
+      }
+    }
+ 
+    function drawFrame() {
+      if (!isHover) { drawRaf = null; return; }
+ 
+      var w = canvas.width;
+      var h = canvas.height;
+      if (w === 0 || h === 0) { drawRaf = requestAnimationFrame(drawFrame); return; }
+ 
+      ctx.clearRect(0, 0, w, h);
+      t += 0.5; /* slow autonomous tick */
+ 
+      /* ── A. Cursor gloss — soft radial white at cursor pos ──
+         This is the primary directional element.
+         Radius scales with button size for proportional feel. */
+      var cx = mouseX * w;
+      var cy = mouseY * h;
+      var r1 = Math.max(w, h) * 0.55;
+ 
+      var gloss = ctx.createRadialGradient(cx, cy, 0, cx, cy, r1);
+      gloss.addColorStop(0,    'rgba(255,255,255,0.13)');
+      gloss.addColorStop(0.35, 'rgba(255,255,255,0.05)');
+      gloss.addColorStop(0.7,  'rgba(255,255,255,0.01)');
+      gloss.addColorStop(1,    'rgba(255,255,255,0.00)');
+      ctx.fillStyle = gloss;
+      ctx.fillRect(0, 0, w, h);
+ 
+      /* ── B. Autonomous diagonal shimmer streak ──
+         Oscillates independently of cursor — adds life
+         even when the mouse is stationary. Very subtle. */
+      var sweep = (Math.sin(t * 0.018) + 1) * 0.5; /* 0→1 */
+      var sx    = w * (-0.2 + sweep * 1.4);
+      var sy    = h * (-0.2 + sweep * 1.4);
+ 
+      var streak = ctx.createLinearGradient(sx - 80, sy - 80, sx + 80, sy + 80);
+      streak.addColorStop(0,    'rgba(255,255,255,0.000)');
+      streak.addColorStop(0.42, 'rgba(255,255,255,0.000)');
+      streak.addColorStop(0.5,  'rgba(255,255,255,0.055)');
+      streak.addColorStop(0.58, 'rgba(255,255,255,0.000)');
+      streak.addColorStop(1,    'rgba(255,255,255,0.000)');
+      ctx.fillStyle = streak;
+      ctx.fillRect(0, 0, w, h);
+ 
+      /* ── C. Red warmth at cursor-opposite corner ──
+         Counter-position of the cursor — creates the sense
+         of a warm light source behind the glass. */
+      var ox = (1 - mouseX) * w;
+      var oy = (1 - mouseY) * h;
+      var r2 = Math.max(w, h) * 0.7;
+ 
+      var warm = ctx.createRadialGradient(ox, oy, 0, ox, oy, r2);
+      warm.addColorStop(0, 'rgba(207,0,0,0.10)');
+      warm.addColorStop(1, 'rgba(207,0,0,0.00)');
+      ctx.fillStyle = warm;
+      ctx.fillRect(0, 0, w, h);
+ 
+      drawRaf = requestAnimationFrame(drawFrame);
+    }
+ 
+    /* ── mouseenter ── */
+    btn.addEventListener('mouseenter', function(e) {
+      isHover = true;
+      syncCanvasSize();
+ 
+      /* Seed cursor position from entry coords */
+      var r = btn.getBoundingClientRect();
+      mouseX = (e.clientX - r.left) / r.width;
+      mouseY = (e.clientY - r.top)  / r.height;
+ 
+      /* Start border rotation */
+      hoveredBtns.add(btn);
+      if (!borderRafId) borderRafId = requestAnimationFrame(borderLoop);
+ 
+      /* Start canvas draw */
+      if (!drawRaf) drawRaf = requestAnimationFrame(drawFrame);
+ 
+      if (cursor) cursor.classList.add('hover');
+    });
+ 
+    /* ── mousemove — instant cursor tracking, no lerp ── */
+    btn.addEventListener('mousemove', function(e) {
+      var r  = btn.getBoundingClientRect();
+      mouseX = (e.clientX - r.left) / r.width;
+      mouseY = (e.clientY - r.top)  / r.height;
+ 
+      /* Also update CSS vars for the CSS glow layer */
+      btn.style.setProperty('--cf-mx', (mouseX * 100).toFixed(1) + '%');
+      btn.style.setProperty('--cf-my', (mouseY * 100).toFixed(1) + '%');
+    });
+ 
+    /* ── mouseleave ── */
+    btn.addEventListener('mouseleave', function() {
+      isHover = false;
+      hoveredBtns.delete(btn);
+ 
+      /* Clear canvas after CSS opacity fade completes (300ms in CSS) */
+      setTimeout(function() {
+        if (!isHover) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }, 340);
+ 
+      if (cursor) cursor.classList.remove('hover');
+    });
+ 
+    /* Keep canvas sized on window resize */
+    window.addEventListener('resize', function() {
+      if (isHover) syncCanvasSize();
+    }, { passive: true });
+  });
+ 
+  /* ════════════════════════════════════════════════════════════
+     5. VIDEO FALLBACK — if video fails to load/play, show a
+     static gradient background so section never looks broken.
+  ════════════════════════════════════════════════════════════ */
+  var video = document.getElementById('cf-video');
+  if (video) {
+    video.addEventListener('error', function() {
+      var wrap = video.parentElement;
+      if (wrap) wrap.style.background = 'linear-gradient(135deg,#0d0d0d 0%,#1a0a0a 50%,#0d0507 100%)';
+    });
+    /* Also catch stall on low-bandwidth */
+    video.addEventListener('stalled', function() {
+      var wrap = video.parentElement;
+      if (wrap) wrap.style.background = 'linear-gradient(135deg,#0d0d0d 0%,#1a0a0a 50%,#0d0507 100%)';
+    });
+  }
  
 })();
 </script>
