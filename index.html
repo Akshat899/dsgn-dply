@@ -1857,6 +1857,491 @@
     transition: transform 0.15s ease, background 0.15s ease;
   }
 }
+.sm-section {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #0d0d0d;
+  /* Height governed by children */
+}
+ 
+/* ═══════════════════════════════
+   SPLIT VIEW
+═══════════════════════════════ */
+.sm-split {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  min-height: 560px;
+  position: relative;
+  transition: opacity 0.45s cubic-bezier(0.22,1,0.36,1),
+              transform 0.45s cubic-bezier(0.22,1,0.36,1);
+}
+ 
+/* When dashboard is active — split exits */
+.sm-split.sm-split-exit {
+  opacity: 0;
+  transform: scale(0.97);
+  pointer-events: none;
+}
+ 
+/* ── Half panels ── */
+.sm-half {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 64px 56px;
+  overflow: hidden;
+  cursor: none;
+  transition: flex 0.6s cubic-bezier(0.22,1,0.36,1);
+}
+ 
+.sm-left  { background: #CF0000; justify-content: flex-start; }
+.sm-right { background: #FFD600; justify-content: flex-end; }
+ 
+/* Hover expand: hovered panel grows to 62%, sibling shrinks */
+.sm-split:not(.sm-split-exit):has(.sm-left:hover) .sm-left  { flex: 1.65; }
+.sm-split:not(.sm-split-exit):has(.sm-left:hover) .sm-right { flex: 0.35; }
+.sm-split:not(.sm-split-exit):has(.sm-right:hover) .sm-right { flex: 1.65; }
+.sm-split:not(.sm-split-exit):has(.sm-right:hover) .sm-left  { flex: 0.35; }
+ 
+/* ── Half content ── */
+.sm-half-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 340px;
+}
+ 
+.sm-half-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+.sm-left  .sm-half-label { color: rgba(255,255,255,0.8); }
+.sm-right .sm-half-label { color: rgba(0,0,0,0.7); }
+ 
+.sm-half-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(3.5rem, 7vw, 6.5rem);
+  letter-spacing: 0.01em;
+  line-height: 0.88;
+}
+.sm-left  .sm-half-title { color: #ffffff; }
+.sm-right .sm-half-title { color: #000000; }
+ 
+.sm-half-sub {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(0.9rem, 1.4vw, 1.05rem);
+  font-style: italic;
+  line-height: 1.5;
+}
+.sm-left  .sm-half-sub { color: rgba(255,255,255,0.7); }
+.sm-right .sm-half-sub { color: rgba(0,0,0,0.55); }
+ 
+/* ── Discover button ── */
+.sm-discover-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 14px 26px;
+  border-radius: 100px;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: none;
+  border: 1.5px solid currentColor;
+  transition:
+    background 0.3s ease,
+    color      0.3s ease,
+    transform  0.4s cubic-bezier(0.34,1.56,0.64,1),
+    gap        0.3s ease;
+}
+.sm-discover-btn svg { width: 16px; height: 16px; flex-shrink: 0; transition: transform 0.3s ease; }
+.sm-discover-btn:hover { gap: 14px; }
+.sm-discover-btn:hover svg { transform: translateX(3px); }
+ 
+.sm-left  .sm-discover-btn { color: #fff; background: transparent; }
+.sm-left  .sm-discover-btn:hover { background: rgba(255,255,255,0.15); }
+.sm-right .sm-discover-btn { color: #000; background: transparent; }
+.sm-right .sm-discover-btn:hover { background: rgba(0,0,0,0.10); }
+ 
+/* ── Center graphic ── */
+.sm-center-graphic {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 140px;
+  display: flex;
+  align-items: flex-end;
+  opacity: 0.6;
+  pointer-events: none;
+}
+.sm-center-left  { right: 0; justify-content: flex-end; }
+.sm-center-right { left:  0; justify-content: flex-start; }
+.sm-silhouette { width: 100%; height: 80%; }
+ 
+/* ── Center spine ── */
+.sm-spine {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: rgba(255,255,255,0.15);
+  pointer-events: none;
+  z-index: 10;
+  transition: opacity 0.4s ease;
+}
+.sm-split:has(.sm-left:hover) .sm-spine,
+.sm-split:has(.sm-right:hover) .sm-spine { opacity: 0; }
+ 
+/* ═══════════════════════════════
+   DASHBOARD VIEW
+═══════════════════════════════ */
+.sm-dashboard {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  padding: 0;
+  /* Starts hidden — JS manages transition */
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(1.03);
+  transition:
+    opacity   0.55s cubic-bezier(0.22,1,0.36,1),
+    transform 0.55s cubic-bezier(0.22,1,0.36,1);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+ 
+.sm-dashboard.sm-dash-active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+ 
+/* Dashboard inherits bg from JS (red or yellow) */
+.sm-dashboard.sm-dash-design { background: #CF0000; color: #fff; }
+.sm-dashboard.sm-dash-code   { background: #FFD600; color: #000; }
+ 
+/* ── Header ── */
+.sm-dash-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32px 52px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: inherit;
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+}
+.sm-dash-design .sm-dash-header { border-bottom-color: rgba(255,255,255,0.10); }
+.sm-dash-code   .sm-dash-header { border-bottom-color: rgba(0,0,0,0.10); }
+ 
+.sm-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1.5px solid currentColor;
+  border-radius: 100px;
+  padding: 10px 20px;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: none;
+  opacity: 0.75;
+  transition: opacity 0.2s ease, gap 0.28s ease;
+}
+.sm-back-btn svg { width: 16px; height: 16px; }
+.sm-back-btn:hover { opacity: 1; }
+ 
+.sm-dash-title-wrap { text-align: center; }
+.sm-dash-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(1.6rem, 3vw, 2.6rem);
+  letter-spacing: 0.04em;
+}
+.sm-dash-subtitle {
+  font-family: 'Instrument Serif', serif;
+  font-size: 0.88rem;
+  font-style: italic;
+  opacity: 0.65;
+  margin-top: 2px;
+}
+ 
+.sm-dash-badge {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 8px 18px;
+  border-radius: 100px;
+  border: 1.5px solid currentColor;
+  opacity: 0.55;
+}
+ 
+/* ── Metrics grid ── */
+.sm-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 28px 52px 52px;
+}
+ 
+/* ── Cards ── */
+.sm-card {
+  background: rgba(255,255,255,0.10);
+  border-radius: 18px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  /* Entry: start hidden, JS reveals with stagger */
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity    0.65s cubic-bezier(0.16,1,0.3,1),
+    transform  0.65s cubic-bezier(0.16,1,0.3,1),
+    box-shadow 0.35s ease;
+}
+ 
+.sm-card.sm-card-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+ 
+.sm-dash-code .sm-card { background: rgba(0,0,0,0.08); }
+ 
+.sm-card:hover {
+  box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+  transform: translateY(-4px) !important;
+}
+ 
+.sm-card-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+ 
+/* ── Big numbers ── */
+.sm-big-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.4rem, 4vw, 3.4rem);
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+.sm-big-unit {
+  font-family: 'Syne', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  opacity: 0.6;
+  margin-left: 3px;
+}
+.sm-card-note {
+  font-family: 'Instrument Serif', serif;
+  font-size: 0.8rem;
+  font-style: italic;
+  opacity: 0.55;
+  margin-top: auto;
+}
+.sm-stat-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.sm-trend {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 3px 10px;
+  border-radius: 100px;
+}
+.sm-trend-up   { background: rgba(0,184,74,0.18);  color: #00b84a; }
+.sm-trend-down { background: rgba(0,184,74,0.18);  color: #00b84a; }
+ 
+/* ── Circular ring & donut ── */
+.sm-circular-wrap, .sm-donut-wrap {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  margin: 0 auto;
+}
+.sm-ring, .sm-donut { width: 100%; height: 100%; transform: rotate(-90deg); }
+ 
+.sm-ring-bg, .sm-donut-bg {
+  fill: none;
+  stroke: rgba(255,255,255,0.12);
+  stroke-width: 8;
+}
+.sm-dash-code .sm-ring-bg,
+.sm-dash-code .sm-donut-bg { stroke: rgba(0,0,0,0.10); }
+ 
+.sm-ring-fill, .sm-donut-fill {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 8;
+  stroke-linecap: round;
+  /* circumference = 2π×48 ≈ 301.6 for ring (r=48)
+     circumference = 2π×44 ≈ 276.5 for donut (r=44) */
+  stroke-dasharray: 301.6;
+  stroke-dashoffset: 301.6; /* starts at 0% */
+  transition: stroke-dashoffset 1.2s cubic-bezier(0.22,1,0.36,1);
+}
+.sm-donut-fill {
+  stroke-dasharray: 276.5;
+  stroke-dashoffset: 276.5;
+}
+.sm-dash-code .sm-ring-fill,
+.sm-dash-code .sm-donut-fill { stroke: #000000; }
+ 
+.sm-circular-center, .sm-donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  gap: 1px;
+}
+ 
+/* ── Line graph ── */
+.sm-graph-wrap { flex: 1; }
+.sm-line-graph { width: 100%; height: auto; display: block; }
+.sm-line { stroke-dasharray: 1000; stroke-dashoffset: 1000;
+  transition: stroke-dashoffset 1.3s cubic-bezier(0.22,1,0.36,1); }
+.sm-area { opacity: 0; transition: opacity 0.8s ease 0.4s; }
+ 
+/* ── Bars ── */
+.sm-bars-wrap { display: flex; flex-direction: column; gap: 12px; flex: 1; }
+.sm-bar-pair  { display: flex; align-items: center; gap: 10px; }
+.sm-bar-tag   { font-family:'Syne',sans-serif; font-size:0.62rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; opacity:0.5; width:38px; flex-shrink:0; }
+.sm-bar-track { flex:1; height:10px; border-radius:100px; background:rgba(255,255,255,0.12); overflow:hidden; }
+.sm-dash-code .sm-bar-track { background:rgba(0,0,0,0.10); }
+.sm-bar { height:100%; border-radius:100px; width:0%; transition:width 1.1s cubic-bezier(0.22,1,0.36,1); }
+.sm-bar-before { background: rgba(255,255,255,0.35); }
+.sm-bar-after  { background: #ffffff; }
+.sm-dash-code .sm-bar-before { background:rgba(0,0,0,0.25); }
+.sm-dash-code .sm-bar-after  { background:#000; }
+.sm-bar-val { font-family:'Bebas Neue',sans-serif; font-size:1rem; width:32px; text-align:right; flex-shrink:0; }
+ 
+/* ── Gauge ── */
+.sm-gauge-wrap { position:relative; height:100px; display:flex; justify-content:center; }
+.sm-gauge { width:180px; display:block; }
+.sm-gauge-bg   { stroke:rgba(255,255,255,0.12); }
+.sm-dash-code .sm-gauge-bg { stroke:rgba(0,0,0,0.10); }
+.sm-gauge-fill {
+  stroke: #000;
+  stroke-linecap: round;
+  /* semi-circle: circumference ≈ π×60 ≈ 188.5 */
+  stroke-dasharray: 188.5;
+  stroke-dashoffset: 188.5;
+  transition: stroke-dashoffset 1.4s cubic-bezier(0.22,1,0.36,1),
+              stroke           0.8s ease;
+}
+.sm-gauge-center {
+  position:absolute;
+  bottom:0; left:0; right:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
+  padding-bottom:4px;
+}
+.sm-gauge-num { font-size:2rem; }
+.sm-gauge-label { font-family:'Syne',sans-serif; font-size:0.7rem; font-weight:600; opacity:0.6; }
+ 
+/* ── Core Vitals ── */
+.sm-vitals-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; flex:1; }
+.sm-vital { display:flex; flex-direction:column; align-items:center; gap:4px;
+  background:rgba(255,255,255,0.10); border-radius:12px; padding:14px 8px;
+  transition:background 0.5s ease; }
+.sm-dash-code .sm-vital { background:rgba(0,0,0,0.08); }
+.sm-vital.sm-vital-green { background:rgba(0,184,74,0.18) !important; }
+.sm-vital-score { font-family:'Bebas Neue',sans-serif; font-size:1.8rem; }
+.sm-vital-label { font-family:'Syne',sans-serif; font-size:0.6rem; font-weight:700; letter-spacing:0.15em; opacity:0.6; }
+.sm-vital-sub   { font-family:'Syne',sans-serif; font-size:0.55rem; opacity:0.4; }
+ 
+/* ── Impact / Score ── */
+.sm-impact-display { display:flex; align-items:baseline; gap:4px; }
+.sm-impact-num { font-family:'Bebas Neue',sans-serif; font-size:clamp(3rem,6vw,5rem); line-height:1; }
+.sm-impact-unit { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:600; opacity:0.6; }
+.sm-pill-tag {
+  display:inline-block;
+  font-family:'Syne',sans-serif;
+  font-size:0.68rem;
+  font-weight:700;
+  letter-spacing:0.08em;
+  padding:6px 14px;
+  border-radius:100px;
+  width:fit-content;
+}
+.sm-pill-up { background:rgba(0,184,74,0.20); color:#00b84a; }
+ 
+/* ── Timeline bars ── */
+.sm-timeline-wrap { display:flex; flex-direction:column; gap:10px; flex:1; }
+.sm-tl-row { display:flex; align-items:center; gap:8px; }
+.sm-tl-tag { font-family:'Syne',sans-serif; font-size:0.6rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; opacity:0.5; width:44px; flex-shrink:0; }
+.sm-tl-bar-track { flex:1; height:8px; border-radius:100px; background:rgba(255,255,255,0.12); overflow:hidden; }
+.sm-dash-code .sm-tl-bar-track { background:rgba(0,0,0,0.10); }
+.sm-tl-bar { height:100%; border-radius:100px; background:#fff; width:0%; transition:width 1.1s cubic-bezier(0.22,1,0.36,1); }
+.sm-tl-code { background:#000 !important; }
+.sm-tl-wk { font-family:'Bebas Neue',sans-serif; font-size:0.95rem; width:24px; text-align:right; flex-shrink:0; }
+ 
+/* ═══════════════════════════════
+   RESPONSIVE
+═══════════════════════════════ */
+@media (max-width: 1024px) {
+  .sm-metrics-grid { grid-template-columns:repeat(2,1fr); padding:24px 32px 40px; }
+  .sm-dash-header  { padding:24px 32px 20px; }
+}
+ 
+@media (max-width: 768px) {
+  .sm-split { flex-direction:column; height:auto; min-height:auto; }
+  .sm-half  { justify-content:center; text-align:center; padding:56px 28px; min-height:50vh; }
+  .sm-half-content { align-items:center; }
+  .sm-center-graphic { display:none; }
+  .sm-spine { display:none; }
+  /* No :has hover expand on touch */
+  .sm-split:has(.sm-left:hover)  .sm-left,
+  .sm-split:has(.sm-left:hover)  .sm-right,
+  .sm-split:has(.sm-right:hover) .sm-left,
+  .sm-split:has(.sm-right:hover) .sm-right { flex:1; }
+  .sm-dashboard { position:relative; min-height:100vh; }
+  .sm-metrics-grid { grid-template-columns:1fr; padding:20px 20px 36px; gap:14px; }
+  .sm-dash-header { padding:20px; flex-wrap:wrap; gap:12px; }
+  .sm-dash-badge  { display:none; }
+  .sm-dash-title-wrap { flex:1 0 100%; order:-1; text-align:left; }
+}
+ 
+@media (max-width: 480px) {
+  .sm-half { padding:44px 20px; }
+  .sm-dash-header { padding:16px; }
+}
+ 
+/* Cursor */
+.sm-section button { cursor:none; }
+@media (hover:none) {
+  .sm-section button  { cursor:pointer; }
+  .sm-discover-btn    { cursor:pointer; }
+}
 </style>
 </head>
 <body>
@@ -2533,6 +3018,269 @@
   <div class="cf-scroll-hint" aria-hidden="true">
     <span class="cf-scroll-line"></span>
   </div>
+ 
+</section>
+<!-- ═══════════════════════════════════════════════════════════════
+     SPLIT METRICS SECTION
+     Split mode → click → animated metrics dashboard
+════════════════════════════════════════════════════════════════ -->
+<section class="sm-section" id="sm-section">
+ 
+  <!-- ═══════ SPLIT VIEW ═══════ -->
+  <div class="sm-split" id="sm-split">
+ 
+    <!-- LEFT — Design -->
+    <div class="sm-half sm-left" id="sm-left" data-side="design">
+      <div class="sm-half-content">
+        <span class="sm-half-label">01</span>
+        <h2 class="sm-half-title">Design</h2>
+        <p class="sm-half-sub">Where ideas earn their form.</p>
+        <button class="sm-discover-btn" data-side="design">
+          Discover More
+          <svg viewBox="0 0 20 20" fill="none"><line x1="3" y1="10" x2="17" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><polyline points="11,4 17,10 11,16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <!-- Center split graphic — half human silhouette left -->
+      <div class="sm-center-graphic sm-center-left" aria-hidden="true">
+        <svg class="sm-silhouette" viewBox="0 0 160 360" fill="none" xmlns="res/split-half-1.png">
+          <!-- Stylised left-half figure -->
+          <ellipse cx="80" cy="60" rx="36" ry="38" fill="rgba(255,255,255,0.12)"/>
+          <path d="M20 360 C20 240 44 200 80 180 C80 180 80 200 80 360Z" fill="rgba(255,255,255,0.10)"/>
+          <path d="M80 180 C80 200 80 360 80 360 L20 360 C20 240 44 200 80 180Z" fill="rgba(255,255,255,0.07)"/>
+        </svg>
+      </div>
+    </div>
+ 
+    <!-- RIGHT — Code -->
+    <div class="sm-half sm-right" id="sm-right" data-side="code">
+      <div class="sm-half-content">
+        <span class="sm-half-label">02</span>
+        <h2 class="sm-half-title">&lt;/Code&gt;</h2>
+        <p class="sm-half-sub">Where logic meets velocity.</p>
+        <button class="sm-discover-btn" data-side="code">
+          Discover More
+          <svg viewBox="0 0 20 20" fill="none"><line x1="3" y1="10" x2="17" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><polyline points="11,4 17,10 11,16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <!-- Center split graphic — half human silhouette right -->
+      <div class="sm-center-graphic sm-center-right" aria-hidden="true">
+        <svg class="sm-silhouette" viewBox="0 0 160 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="80" cy="60" rx="36" ry="38" fill="rgba(0,0,0,0.10)"/>
+          <path d="M140 360 C140 240 116 200 80 180 C80 180 80 200 80 360Z" fill="rgba(0,0,0,0.08)"/>
+        </svg>
+      </div>
+    </div>
+ 
+    <!-- Center spine line -->
+    <div class="sm-spine" aria-hidden="true"></div>
+ 
+  </div><!-- /sm-split -->
+ 
+  <!-- ═══════ DASHBOARD VIEW ═══════ -->
+  <div class="sm-dashboard" id="sm-dashboard" aria-hidden="true">
+ 
+    <!-- Dashboard header -->
+    <div class="sm-dash-header">
+      <button class="sm-back-btn" id="sm-back-btn" aria-label="Go back to split view">
+        <svg viewBox="0 0 20 20" fill="none"><polyline points="13,4 7,10 13,16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="7" y1="10" x2="17" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Back
+      </button>
+      <div class="sm-dash-title-wrap">
+        <h2 class="sm-dash-title" id="sm-dash-title">Design Metrics</h2>
+        <p class="sm-dash-subtitle" id="sm-dash-subtitle">Performance impact of world-class design</p>
+      </div>
+      <div class="sm-dash-badge" id="sm-dash-badge">Design</div>
+    </div>
+ 
+    <!-- ── DESIGN METRICS GRID ── -->
+    <div class="sm-metrics-grid" id="sm-design-grid">
+ 
+      <!-- 1. Brand Recall — circular progress -->
+      <div class="sm-card sm-card-circular" data-delay="0">
+        <div class="sm-card-label">Brand Recall</div>
+        <div class="sm-circular-wrap">
+          <svg class="sm-ring" viewBox="0 0 120 120">
+            <circle class="sm-ring-bg"    cx="60" cy="60" r="48" />
+            <circle class="sm-ring-fill"  cx="60" cy="60" r="48" id="sm-ring-recall" />
+          </svg>
+          <div class="sm-circular-center">
+            <span class="sm-big-num" id="sm-recall-num">0</span><span class="sm-big-unit">%</span>
+          </div>
+        </div>
+        <p class="sm-card-note">vs industry avg 52%</p>
+      </div>
+ 
+      <!-- 2. Engagement Lift — line graph -->
+      <div class="sm-card sm-card-graph" data-delay="1">
+        <div class="sm-card-label">Engagement Lift</div>
+        <div class="sm-graph-wrap">
+          <svg class="sm-line-graph" viewBox="0 0 220 100" id="sm-engage-graph">
+            <defs>
+              <linearGradient id="smEngageGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%"   stop-color="#CF0000" stop-opacity="0.35"/>
+                <stop offset="100%" stop-color="#CF0000" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path class="sm-area"  id="sm-engage-area"  d="" fill="url(#smEngageGrad)"/>
+            <path class="sm-line"  id="sm-engage-line"  d="" stroke="#CF0000" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="sm-stat-row">
+          <span class="sm-big-num" id="sm-engage-num">0</span><span class="sm-big-unit">%</span>
+          <span class="sm-trend sm-trend-up">↑ lift</span>
+        </div>
+        <p class="sm-card-note">over 6-month period</p>
+      </div>
+ 
+      <!-- 3. CTR Increase — bar comparison -->
+      <div class="sm-card sm-card-bars" data-delay="2">
+        <div class="sm-card-label">CTR Increase</div>
+        <div class="sm-bars-wrap" id="sm-ctr-bars">
+          <div class="sm-bar-pair">
+            <span class="sm-bar-tag">Before</span>
+            <div class="sm-bar-track"><div class="sm-bar sm-bar-before" id="sm-ctr-before"></div></div>
+            <span class="sm-bar-val" id="sm-ctr-before-val">0%</span>
+          </div>
+          <div class="sm-bar-pair">
+            <span class="sm-bar-tag">After</span>
+            <div class="sm-bar-track"><div class="sm-bar sm-bar-after" id="sm-ctr-after"></div></div>
+            <span class="sm-bar-val" id="sm-ctr-after-val">0%</span>
+          </div>
+        </div>
+        <p class="sm-card-note">+2.4× click-through rate</p>
+      </div>
+ 
+      <!-- 4. Consistency Score — donut -->
+      <div class="sm-card sm-card-donut" data-delay="3">
+        <div class="sm-card-label">Consistency Score</div>
+        <div class="sm-donut-wrap">
+          <svg class="sm-donut" viewBox="0 0 120 120">
+            <circle class="sm-donut-bg"   cx="60" cy="60" r="44"/>
+            <circle class="sm-donut-fill" cx="60" cy="60" r="44" id="sm-donut-consist"/>
+          </svg>
+          <div class="sm-donut-center">
+            <span class="sm-big-num" id="sm-consist-num">0</span><span class="sm-big-unit">%</span>
+          </div>
+        </div>
+        <p class="sm-card-note">brand system compliance</p>
+      </div>
+ 
+      <!-- 5. Conversion Impact -->
+      <div class="sm-card sm-card-impact" data-delay="4">
+        <div class="sm-card-label">Conversion Impact</div>
+        <div class="sm-impact-display">
+          <span class="sm-impact-num" id="sm-impact-num">0</span><span class="sm-impact-unit">%</span>
+        </div>
+        <div class="sm-pill-tag sm-pill-up" id="sm-impact-pill">+0% avg lift</div>
+        <p class="sm-card-note">attributed to design improvements</p>
+      </div>
+ 
+      <!-- 6. Time-to-Value -->
+      <div class="sm-card sm-card-tvl" data-delay="5">
+        <div class="sm-card-label">Time to Value</div>
+        <div class="sm-timeline-wrap" id="sm-design-timeline">
+          <div class="sm-tl-row"><span class="sm-tl-tag">Strategy</span><div class="sm-tl-bar-track"><div class="sm-tl-bar" style="--tl-w:30%" id="sm-tl-d1"></div></div><span class="sm-tl-wk" id="sm-tl-d1-lbl">0w</span></div>
+          <div class="sm-tl-row"><span class="sm-tl-tag">Wireframe</span><div class="sm-tl-bar-track"><div class="sm-tl-bar" style="--tl-w:55%" id="sm-tl-d2"></div></div><span class="sm-tl-wk" id="sm-tl-d2-lbl">0w</span></div>
+          <div class="sm-tl-row"><span class="sm-tl-tag">Delivery</span><div class="sm-tl-bar-track"><div class="sm-tl-bar" style="--tl-w:85%" id="sm-tl-d3"></div></div><span class="sm-tl-wk" id="sm-tl-d3-lbl">0w</span></div>
+        </div>
+        <p class="sm-card-note">avg. 6 weeks start-to-ship</p>
+      </div>
+ 
+    </div><!-- /sm-design-grid -->
+ 
+    <!-- ── CODE METRICS GRID ── -->
+    <div class="sm-metrics-grid" id="sm-code-grid" style="display:none;">
+ 
+      <!-- 1. Load Time gauge -->
+      <div class="sm-card sm-card-gauge" data-delay="0">
+        <div class="sm-card-label">Load Time</div>
+        <div class="sm-gauge-wrap">
+          <svg class="sm-gauge" viewBox="0 0 140 80">
+            <path class="sm-gauge-bg"   d="M10 75 A60 60 0 0 1 130 75" stroke-width="10" fill="none"/>
+            <path class="sm-gauge-fill" d="M10 75 A60 60 0 0 1 130 75" stroke-width="10" fill="none" id="sm-gauge-load"/>
+          </svg>
+          <div class="sm-gauge-center">
+            <span class="sm-big-num sm-gauge-num" id="sm-load-num">3.4</span><span class="sm-big-unit">s</span>
+            <span class="sm-gauge-label">→ <b id="sm-load-after">1.1s</b></span>
+          </div>
+        </div>
+        <p class="sm-card-note">67% faster load time</p>
+      </div>
+ 
+      <!-- 2. Conversion Rate — bar -->
+      <div class="sm-card sm-card-bars" data-delay="1">
+        <div class="sm-card-label">Conversion Rate</div>
+        <div class="sm-bars-wrap">
+          <div class="sm-bar-pair">
+            <span class="sm-bar-tag">Before</span>
+            <div class="sm-bar-track"><div class="sm-bar sm-bar-before" id="sm-conv-before"></div></div>
+            <span class="sm-bar-val" id="sm-conv-before-val">0%</span>
+          </div>
+          <div class="sm-bar-pair">
+            <span class="sm-bar-tag">After</span>
+            <div class="sm-bar-track"><div class="sm-bar sm-bar-after" id="sm-conv-after"></div></div>
+            <span class="sm-bar-val" id="sm-conv-after-val">0%</span>
+          </div>
+        </div>
+        <p class="sm-card-note">+3.1× conversion uplift</p>
+      </div>
+ 
+      <!-- 3. Core Web Vitals — score cards -->
+      <div class="sm-card sm-card-vitals" data-delay="2">
+        <div class="sm-card-label">Core Web Vitals</div>
+        <div class="sm-vitals-grid">
+          <div class="sm-vital"><span class="sm-vital-score" id="sm-lcp">0</span><span class="sm-vital-label">LCP</span><span class="sm-vital-sub">sec</span></div>
+          <div class="sm-vital"><span class="sm-vital-score" id="sm-fid">0</span><span class="sm-vital-label">FID</span><span class="sm-vital-sub">ms</span></div>
+          <div class="sm-vital"><span class="sm-vital-score" id="sm-cls">0</span><span class="sm-vital-label">CLS</span><span class="sm-vital-sub">score</span></div>
+        </div>
+        <p class="sm-card-note">All metrics in green zone</p>
+      </div>
+ 
+      <!-- 4. Bounce Rate — downward graph -->
+      <div class="sm-card sm-card-graph" data-delay="3">
+        <div class="sm-card-label">Bounce Rate</div>
+        <div class="sm-graph-wrap">
+          <svg class="sm-line-graph" viewBox="0 0 220 100" id="sm-bounce-graph">
+            <defs>
+              <linearGradient id="smBounceGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%"   stop-color="#CF0000"/>
+                <stop offset="100%" stop-color="#00b84a"/>
+              </linearGradient>
+            </defs>
+            <path class="sm-line" id="sm-bounce-line" d="" stroke="url(#smBounceGrad)" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="sm-stat-row">
+          <span class="sm-big-num" id="sm-bounce-num">0</span><span class="sm-big-unit">%</span>
+          <span class="sm-trend sm-trend-down">↓ reduced</span>
+        </div>
+        <p class="sm-card-note">bounce rate reduction</p>
+      </div>
+ 
+      <!-- 5. Time to Launch — timeline -->
+      <div class="sm-card sm-card-tvl" data-delay="4">
+        <div class="sm-card-label">Time to Launch</div>
+        <div class="sm-timeline-wrap">
+          <div class="sm-tl-row"><span class="sm-tl-tag">Infra</span><div class="sm-tl-bar-track"><div class="sm-tl-bar sm-tl-code" style="--tl-w:25%" id="sm-tl-c1"></div></div><span class="sm-tl-wk" id="sm-tl-c1-lbl">0w</span></div>
+          <div class="sm-tl-row"><span class="sm-tl-tag">Build</span><div class="sm-tl-bar-track"><div class="sm-tl-bar sm-tl-code" style="--tl-w:65%" id="sm-tl-c2"></div></div><span class="sm-tl-wk" id="sm-tl-c2-lbl">0w</span></div>
+          <div class="sm-tl-row"><span class="sm-tl-tag">Deploy</span><div class="sm-tl-bar-track"><div class="sm-tl-bar sm-tl-code" style="--tl-w:90%" id="sm-tl-c3"></div></div><span class="sm-tl-wk" id="sm-tl-c3-lbl">0w</span></div>
+        </div>
+        <p class="sm-card-note">avg. 8 weeks to production</p>
+      </div>
+ 
+      <!-- 6. Performance Score -->
+      <div class="sm-card sm-card-impact" data-delay="5">
+        <div class="sm-card-label">Performance Score</div>
+        <div class="sm-impact-display">
+          <span class="sm-impact-num" id="sm-perf-num">0</span><span class="sm-impact-unit">/100</span>
+        </div>
+        <div class="sm-pill-tag sm-pill-up" id="sm-perf-pill">+0 pts improvement</div>
+        <p class="sm-card-note">Lighthouse score after optimisation</p>
+      </div>
+ 
+    </div><!-- /sm-code-grid -->
+ 
+  </div><!-- /sm-dashboard -->
  
 </section>
 <!-- ─── FOOTER ─── -->
@@ -3891,6 +4639,385 @@ revealElements.forEach(el => observer.observe(el));
   }
  
 })();
+(function initSplitMetrics() {
+  'use strict';
+ 
+  /* ── Elements ── */
+  var section   = document.getElementById('sm-section');
+  var split     = document.getElementById('sm-split');
+  var dashboard = document.getElementById('sm-dashboard');
+  var backBtn   = document.getElementById('sm-back-btn');
+  var cursor    = document.getElementById('cursor');
+ 
+  if (!section || !split || !dashboard) return;
+ 
+  var dashTitle    = document.getElementById('sm-dash-title');
+  var dashSubtitle = document.getElementById('sm-dash-subtitle');
+  var dashBadge    = document.getElementById('sm-dash-badge');
+  var designGrid   = document.getElementById('sm-design-grid');
+  var codeGrid     = document.getElementById('sm-code-grid');
+ 
+  var activeSide  = null;
+  var isExpanded  = false;
+  var metricsFired = false;
+ 
+  /* ── Cursor wiring ── */
+  function wireCursor(el) {
+    if (!el || !cursor) return;
+    el.addEventListener('mouseenter', function() { cursor.classList.add('hover'); });
+    el.addEventListener('mouseleave', function() { cursor.classList.remove('hover'); });
+  }
+  section.querySelectorAll('button, a').forEach(wireCursor);
+ 
+  /* ════════════════════════════════════════════════════════════
+     OPEN DASHBOARD
+  ════════════════════════════════════════════════════════════ */
+  function openDashboard(side) {
+    if (isExpanded) return;
+    isExpanded  = true;
+    activeSide  = side;
+    metricsFired = false;
+ 
+    /* 1. Configure dashboard appearance */
+    var isDesign = (side === 'design');
+    dashboard.className  = 'sm-dashboard sm-dash-' + side;
+ 
+    dashTitle.textContent    = isDesign ? 'Design Metrics'      : 'Development Metrics';
+    dashSubtitle.textContent = isDesign ? 'Performance impact of world-class design'
+                                        : 'What fast, clean code actually delivers';
+    dashBadge.textContent    = isDesign ? 'Design' : 'Code';
+    dashBadge.style.color    = isDesign ? '#fff'   : '#000';
+    backBtn.style.color      = isDesign ? '#fff'   : '#000';
+ 
+    /* Show correct metrics grid */
+    designGrid.style.display = isDesign ? 'grid' : 'none';
+    codeGrid.style.display   = isDesign ? 'none' : 'grid';
+ 
+    /* Reset card visibility for this grid */
+    var activeGrid = isDesign ? designGrid : codeGrid;
+    Array.from(activeGrid.querySelectorAll('.sm-card')).forEach(function(c) {
+      c.classList.remove('sm-card-visible');
+    });
+ 
+    /* Adjust section height to accommodate dashboard */
+    section.style.height = '100vh';
+    section.style.minHeight = '560px';
+ 
+    /* 2. Exit split */
+    split.classList.add('sm-split-exit');
+ 
+    /* 3. Enter dashboard after split starts exiting */
+    setTimeout(function() {
+      dashboard.setAttribute('aria-hidden', 'false');
+      dashboard.classList.add('sm-dash-active');
+ 
+      /* 4. Stagger cards in */
+      var cards = Array.from(activeGrid.querySelectorAll('.sm-card'));
+      cards.forEach(function(card, i) {
+        var delay = 120 + i * 110;
+        setTimeout(function() {
+          card.classList.add('sm-card-visible');
+        }, delay);
+      });
+ 
+      /* 5. Fire metric animations after cards enter */
+      setTimeout(function() {
+        if (!metricsFired) {
+          metricsFired = true;
+          if (isDesign) animateDesignMetrics();
+          else          animateCodeMetrics();
+        }
+      }, 120 + 6 * 110 + 100);
+ 
+    }, 300);
+  }
+ 
+  /* ════════════════════════════════════════════════════════════
+     CLOSE DASHBOARD
+  ════════════════════════════════════════════════════════════ */
+  function closeDashboard() {
+    if (!isExpanded) return;
+ 
+    dashboard.classList.remove('sm-dash-active');
+    dashboard.setAttribute('aria-hidden', 'true');
+ 
+    setTimeout(function() {
+      split.classList.remove('sm-split-exit');
+      section.style.height = '';
+      section.style.minHeight = '';
+      isExpanded  = false;
+      activeSide  = null;
+      metricsFired = false;
+    }, 450);
+  }
+ 
+  /* ── Event listeners ── */
+  split.querySelectorAll('.sm-discover-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      openDashboard(this.getAttribute('data-side'));
+    });
+  });
+ 
+  if (backBtn) backBtn.addEventListener('click', closeDashboard);
+ 
+  /* ════════════════════════════════════════════════════════════
+     ANIMATION ENGINE
+     Shared lerp-based counter + helpers
+  ════════════════════════════════════════════════════════════ */
+ 
+  /* Animate a number from start → end over duration ms */
+  function animateCounter(el, start, end, duration, decimals, suffix, onUpdate) {
+    if (!el) return;
+    var startTime = null;
+    decimals = decimals || 0;
+ 
+    function ease(t) { /* cubic ease-out */
+      return 1 - Math.pow(1 - t, 3);
+    }
+ 
+    function tick(ts) {
+      if (!startTime) startTime = ts;
+      var progress = Math.min((ts - startTime) / duration, 1);
+      var value    = start + (end - start) * ease(progress);
+      el.textContent = value.toFixed(decimals) + (suffix || '');
+      if (onUpdate) onUpdate(value, progress);
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+ 
+  /* Animate SVG circular ring stroke-dashoffset */
+  /* circ = 2πr */
+  function animateRing(el, circ, pct, duration) {
+    if (!el) return;
+    var target = circ - (circ * pct / 100);
+    var start  = parseFloat(el.style.strokeDashoffset || circ);
+    var t0 = null;
+    function ease(t) { return 1 - Math.pow(1 - t, 3); }
+    function tick(ts) {
+      if (!t0) t0 = ts;
+      var p = Math.min((ts - t0) / duration, 1);
+      el.style.strokeDashoffset = (start + (target - start) * ease(p)).toFixed(2);
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+ 
+  /* Animate an SVG line path with stroke-dashoffset reveal */
+  function animateLine(lineEl, areaEl, duration) {
+    if (!lineEl) return;
+    var len = lineEl.getTotalLength ? lineEl.getTotalLength() : 300;
+    lineEl.style.strokeDasharray  = len;
+    lineEl.style.strokeDashoffset = len;
+    var t0 = null;
+    function ease(t) { return 1 - Math.pow(1 - t, 3); }
+    function tick(ts) {
+      if (!t0) t0 = ts;
+      var p = Math.min((ts - t0) / duration, 1);
+      lineEl.style.strokeDashoffset = (len * (1 - ease(p))).toFixed(2);
+      if (p < 1) requestAnimationFrame(tick);
+      else if (areaEl) areaEl.style.opacity = '0.6';
+    }
+    requestAnimationFrame(tick);
+  }
+ 
+  /* Set a bar width with transition */
+  function animateBar(el, pct, valEl, valFmt) {
+    if (!el) return;
+    requestAnimationFrame(function() {
+      el.style.width = pct + '%';
+      if (valEl) {
+        animateCounter(valEl, 0, parseFloat(valFmt), 1100, 1, '%');
+      }
+    });
+  }
+ 
+  /* Build an upward line path in a given SVG viewBox */
+  function buildLinePath(points, viewW, viewH) {
+    /* points: array of [x_frac, y_frac] normalised 0–1 */
+    var d = points.map(function(p, i) {
+      var x = p[0] * viewW;
+      var y = viewH - p[1] * viewH * 0.85 - viewH * 0.08;
+      return (i === 0 ? 'M' : 'L') + x.toFixed(1) + ' ' + y.toFixed(1);
+    }).join(' ');
+    return d;
+  }
+ 
+  function buildAreaPath(points, viewW, viewH) {
+    var d = buildLinePath(points, viewW, viewH);
+    var last = points[points.length - 1];
+    var first = points[0];
+    d += ' L' + (last[0]*viewW).toFixed(1)  + ' ' + viewH;
+    d += ' L' + (first[0]*viewW).toFixed(1) + ' ' + viewH + ' Z';
+    return d;
+  }
+ 
+  /* ════════════════════════════════════════════════════════════
+     DESIGN METRICS
+  ════════════════════════════════════════════════════════════ */
+  function animateDesignMetrics() {
+ 
+    /* 1. Brand Recall — circular 78% */
+    animateRing(document.getElementById('sm-ring-recall'), 301.6, 78, 1300);
+    animateCounter(document.getElementById('sm-recall-num'), 0, 78, 1300);
+ 
+    /* 2. Engagement Lift — line graph 64% */
+    var engageLine = document.getElementById('sm-engage-line');
+    var engageArea = document.getElementById('sm-engage-area');
+    var engPts = [[0,0.12],[0.15,0.22],[0.3,0.30],[0.45,0.42],[0.6,0.55],[0.75,0.68],[0.9,0.78],[1,0.85]];
+    if (engageLine) {
+      var d = buildLinePath(engPts, 220, 100);
+      engageLine.setAttribute('d', d);
+      engageArea.setAttribute('d', buildAreaPath(engPts, 220, 100));
+      animateLine(engageLine, engageArea, 1300);
+    }
+    animateCounter(document.getElementById('sm-engage-num'), 0, 64, 1300);
+ 
+    /* 3. CTR — before 2.1% after 5.0% */
+    animateBar(document.getElementById('sm-ctr-before'), 42, document.getElementById('sm-ctr-before-val'), '2.1');
+    setTimeout(function() {
+      animateBar(document.getElementById('sm-ctr-after'), 100, document.getElementById('sm-ctr-after-val'), '5.0');
+    }, 200);
+ 
+    /* 4. Consistency Score — donut 91% */
+    animateRing(document.getElementById('sm-donut-consist'), 276.5, 91, 1300);
+    animateCounter(document.getElementById('sm-consist-num'), 0, 91, 1300);
+ 
+    /* 5. Conversion Impact */
+    animateCounter(document.getElementById('sm-impact-num'), 0, 38, 1200);
+    var pill = document.getElementById('sm-impact-pill');
+    if (pill) {
+      var v = 0;
+      var t0 = null;
+      function easeP(t) { return 1 - Math.pow(1-t,3); }
+      requestAnimationFrame(function tickP(ts) {
+        if (!t0) t0 = ts;
+        var p = Math.min((ts-t0)/1200, 1);
+        v = Math.round(38 * easeP(p));
+        pill.textContent = '+' + v + '% avg lift';
+        if (p < 1) requestAnimationFrame(tickP);
+      });
+    }
+ 
+    /* 6. Timeline */
+    setTimeout(function() {
+      var tl = [
+        { bar:'sm-tl-d1', lbl:'sm-tl-d1-lbl', w:30, wk:2 },
+        { bar:'sm-tl-d2', lbl:'sm-tl-d2-lbl', w:55, wk:4 },
+        { bar:'sm-tl-d3', lbl:'sm-tl-d3-lbl', w:85, wk:6 },
+      ];
+      tl.forEach(function(item, i) {
+        setTimeout(function() {
+          var b = document.getElementById(item.bar);
+          var l = document.getElementById(item.lbl);
+          if (b) b.style.width = item.w + '%';
+          if (l) animateCounter(l, 0, item.wk, 900, 0, 'w');
+        }, i * 150);
+      });
+    }, 200);
+  }
+ 
+  /* ════════════════════════════════════════════════════════════
+     CODE METRICS
+  ════════════════════════════════════════════════════════════ */
+  function animateCodeMetrics() {
+ 
+    /* 1. Load Time gauge — animate 3.4s → 1.1s, show improvement */
+    var gaugeEl = document.getElementById('sm-gauge-load');
+    var loadNum = document.getElementById('sm-load-num');
+    /* Start at slow end (small arc = high offset), animate to fast */
+    /* We visualise "after" speed: 1.1s out of max 4s → 72% of arc = good */
+    var gaugeCirc = 188.5;
+    var t0g = null;
+    function easeG(t) { return 1 - Math.pow(1-t,3); }
+    requestAnimationFrame(function tickG(ts) {
+      if (!t0g) t0g = ts;
+      var p  = Math.min((ts-t0g)/1400, 1);
+      var ep = easeG(p);
+      /* Start at 10% fill (slow), end at 72% fill (fast) */
+      var fillPct = 10 + ep * 62;
+      if (gaugeEl) {
+        gaugeEl.style.strokeDashoffset = (gaugeCirc - gaugeCirc * fillPct / 100).toFixed(2);
+        /* Colour: red → green as we speed up */
+        var r = Math.round(207 - ep * 207);
+        var g = Math.round(ep * 184);
+        gaugeEl.style.stroke = 'rgb(' + r + ',' + g + ',0)';
+      }
+      /* Counter: 3.4 → 1.1 */
+      var val = 3.4 - ep * 2.3;
+      if (loadNum) loadNum.textContent = val.toFixed(1);
+      if (p < 1) requestAnimationFrame(tickG);
+      else {
+        if (gaugeEl) gaugeEl.style.stroke = '#00b84a';
+      }
+    });
+ 
+    /* 2. Conversion Rate — before 1.2% after 3.7% */
+    animateBar(document.getElementById('sm-conv-before'), 32, document.getElementById('sm-conv-before-val'), '1.2');
+    setTimeout(function() {
+      animateBar(document.getElementById('sm-conv-after'), 100, document.getElementById('sm-conv-after-val'), '3.7');
+    }, 250);
+ 
+    /* 3. Core Web Vitals */
+    var vitals = [
+      { id:'sm-lcp', target:1.2, dec:1 },
+      { id:'sm-fid', target:18,  dec:0 },
+      { id:'sm-cls', target:0.05,dec:2 },
+    ];
+    vitals.forEach(function(v, i) {
+      setTimeout(function() {
+        animateCounter(document.getElementById(v.id), 0, v.target, 1000, v.dec);
+        setTimeout(function() {
+          var el = document.getElementById(v.id);
+          if (el) el.closest('.sm-vital').classList.add('sm-vital-green');
+        }, 1050);
+      }, i * 150);
+    });
+ 
+    /* 4. Bounce Rate — downward line */
+    var bounceLine = document.getElementById('sm-bounce-line');
+    var bPts = [[0,0.88],[0.15,0.78],[0.3,0.65],[0.45,0.52],[0.6,0.38],[0.75,0.25],[0.9,0.15],[1,0.08]];
+    if (bounceLine) {
+      bounceLine.setAttribute('d', buildLinePath(bPts, 220, 100));
+      animateLine(bounceLine, null, 1300);
+    }
+    animateCounter(document.getElementById('sm-bounce-num'), 0, 42, 1300);
+ 
+    /* 5. Timeline */
+    setTimeout(function() {
+      var tl = [
+        { bar:'sm-tl-c1', lbl:'sm-tl-c1-lbl', w:25, wk:2 },
+        { bar:'sm-tl-c2', lbl:'sm-tl-c2-lbl', w:65, wk:5 },
+        { bar:'sm-tl-c3', lbl:'sm-tl-c3-lbl', w:90, wk:8 },
+      ];
+      tl.forEach(function(item, i) {
+        setTimeout(function() {
+          var b = document.getElementById(item.bar);
+          var l = document.getElementById(item.lbl);
+          if (b) b.style.width = item.w + '%';
+          if (l) animateCounter(l, 0, item.wk, 900, 0, 'w');
+        }, i * 150);
+      });
+    }, 200);
+ 
+    /* 6. Performance Score */
+    animateCounter(document.getElementById('sm-perf-num'), 0, 97, 1300);
+    var perfPill = document.getElementById('sm-perf-pill');
+    if (perfPill) {
+      var v2 = 0, t0p = null;
+      function easeP2(t) { return 1 - Math.pow(1-t,3); }
+      requestAnimationFrame(function tickP2(ts) {
+        if (!t0p) t0p = ts;
+        var p = Math.min((ts-t0p)/1300, 1);
+        v2 = Math.round(54 * easeP2(p));
+        perfPill.textContent = '+' + v2 + ' pts improvement';
+        if (p < 1) requestAnimationFrame(tickP2);
+      });
+    }
+  }
+ 
+})();
 </script>
+
 </body>
 </html>
