@@ -3391,7 +3391,7 @@
       <span class="cf-btn-glow" aria-hidden="true"></span>
     </a>
  
-    <a href="#" class="cf-btn" data-label="Services" aria-label="Our services">
+    <a href="#" class="cf-btn" data-label="Services" aria-label="Our services"id="cf-services-trigger">
       <span class="cf-btn-label">Services</span>
       <canvas class="cf-btn-canvas" aria-hidden="true"></canvas>
       <span class="cf-btn-border" aria-hidden="true"></span>
@@ -5549,6 +5549,802 @@ revealElements.forEach(el => observer.observe(el));
   observer.observe(section);
 })();
 </script>
+<!-- ═══════════════════════════════════════════════════════════════
+     SERVICES POPUP
+     Video-style numbered card nav → description panel reveal
+════════════════════════════════════════════════════════════════ -->
 
+<!-- OVERLAY BACKDROP -->
+<div class="sp-overlay" id="sp-overlay" aria-hidden="true"></div>
+
+<!-- POPUP SHELL -->
+<div class="sp-popup" id="sp-popup" role="dialog" aria-modal="true"
+     aria-label="Our Services" aria-hidden="true">
+
+  <!-- Close button -->
+  <button class="sp-close" id="sp-close" aria-label="Close services">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="1.5" stroke-linecap="round">
+      <line x1="5" y1="5" x2="19" y2="19"/>
+      <line x1="19" y1="5" x2="5" y2="19"/>
+    </svg>
+  </button>
+
+  <!-- ── LEFT: numbered service cards ── -->
+  <div class="sp-left" id="sp-left">
+    <div class="sp-left-header">
+      <span class="sp-eyebrow">What we do</span>
+      <h2 class="sp-left-title">Our<br>Services</h2>
+    </div>
+
+    <div class="sp-cards-list" id="sp-cards-list">
+
+      <div class="sp-card" data-index="0" tabindex="0" role="button" aria-label="UI/UX Design">
+        <span class="sp-num">01</span>
+        <div class="sp-card-text">
+          <span class="sp-card-name">UI/UX Design</span>
+          <span class="sp-card-cta">Click here
+            <svg viewBox="0 0 16 16" fill="none"><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><polyline points="9,3 14,8 9,13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </div>
+      </div>
+
+      <div class="sp-card" data-index="1" tabindex="0" role="button" aria-label="Branding & Identity">
+        <span class="sp-num">02</span>
+        <div class="sp-card-text">
+          <span class="sp-card-name">Branding &amp; Identity</span>
+          <span class="sp-card-cta">Click here
+            <svg viewBox="0 0 16 16" fill="none"><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><polyline points="9,3 14,8 9,13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </div>
+      </div>
+
+      <div class="sp-card" data-index="2" tabindex="0" role="button" aria-label="Website Development">
+        <span class="sp-num">03</span>
+        <div class="sp-card-text">
+          <span class="sp-card-name">Website Development</span>
+          <span class="sp-card-cta">Click here
+            <svg viewBox="0 0 16 16" fill="none"><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><polyline points="9,3 14,8 9,13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </div>
+      </div>
+
+      <div class="sp-card" data-index="3" tabindex="0" role="button" aria-label="Landing Page Design">
+        <span class="sp-num">04</span>
+        <div class="sp-card-text">
+          <span class="sp-card-name">Landing Page Design</span>
+          <span class="sp-card-cta">Click here
+            <svg viewBox="0 0 16 16" fill="none"><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><polyline points="9,3 14,8 9,13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </div>
+      </div>
+
+      <div class="sp-card" data-index="4" tabindex="0" role="button" aria-label="E-commerce Development">
+        <span class="sp-num">05</span>
+        <div class="sp-card-text">
+          <span class="sp-card-name">E-commerce Development</span>
+          <span class="sp-card-cta">Click here
+            <svg viewBox="0 0 16 16" fill="none"><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><polyline points="9,3 14,8 9,13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </div>
+      </div>
+
+      <div class="sp-card" data-index="5" tabindex="0" role="button" aria-label="Motion Graphics">
+        <span class="sp-num">06</span>
+        <div class="sp-card-text">
+          <span class="sp-card-name">Motion Graphics</span>
+          <span class="sp-card-cta">Click here
+            <svg viewBox="0 0 16 16" fill="none"><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><polyline points="9,3 14,8 9,13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </div>
+      </div>
+
+      <div class="sp-card" data-index="6" tabindex="0" role="button" aria-label="Custom Project">
+        <span class="sp-num">07</span>
+        <div class="sp-card-text">
+          <span class="sp-card-name">Custom Project</span>
+          <span class="sp-card-cta">Click here
+            <svg viewBox="0 0 16 16" fill="none"><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><polyline points="9,3 14,8 9,13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </div>
+      </div>
+
+    </div><!-- /sp-cards-list -->
+  </div><!-- /sp-left -->
+
+  <!-- ── RIGHT: description panel ── -->
+  <div class="sp-right" id="sp-right" aria-live="polite">
+
+    <!-- Default state (no service selected) -->
+    <div class="sp-default" id="sp-default">
+      <span class="sp-default-num">—</span>
+      <p class="sp-default-hint">Select a service<br>to learn more</p>
+    </div>
+
+    <!-- Description panels (one per service) -->
+    <div class="sp-desc" id="sp-desc-0" data-index="0" aria-hidden="true">
+      <div class="sp-desc-inner">
+        <span class="sp-desc-num">01</span>
+        <h3 class="sp-desc-title">UI/UX Design</h3>
+        <p class="sp-desc-body">We craft intuitive, research-backed interfaces that users actually enjoy using. From wireframes to polished Figma handoffs — every pixel earns its place.</p>
+        <ul class="sp-desc-list">
+          <li>User research &amp; journey mapping</li>
+          <li>Wireframing &amp; prototyping</li>
+          <li>Design systems &amp; component libraries</li>
+          <li>Usability testing &amp; iteration</li>
+        </ul>
+        <a href="#contact" class="sp-desc-cta" id="sp-desc-cta-0">Start a project →</a>
+      </div>
+    </div>
+
+    <div class="sp-desc" id="sp-desc-1" data-index="1" aria-hidden="true">
+      <div class="sp-desc-inner">
+        <span class="sp-desc-num">02</span>
+        <h3 class="sp-desc-title">Branding &amp; Identity</h3>
+        <p class="sp-desc-body">A brand is more than a logo. We build complete visual identities — from the mark to the motion — that make businesses unforgettable.</p>
+        <ul class="sp-desc-list">
+          <li>Logo &amp; mark design</li>
+          <li>Typography &amp; colour systems</li>
+          <li>Brand guidelines &amp; voice</li>
+          <li>Collateral &amp; print-ready assets</li>
+        </ul>
+        <a href="#contact" class="sp-desc-cta" id="sp-desc-cta-1">Start a project →</a>
+      </div>
+    </div>
+
+    <div class="sp-desc" id="sp-desc-2" data-index="2" aria-hidden="true">
+      <div class="sp-desc-inner">
+        <span class="sp-desc-num">03</span>
+        <h3 class="sp-desc-title">Website Development</h3>
+        <p class="sp-desc-body">Clean, fast, and battle-tested. We build production-grade websites that load instantly, rank well, and scale without breaking a sweat.</p>
+        <ul class="sp-desc-list">
+          <li>Custom HTML/CSS/JS development</li>
+          <li>CMS integration (Webflow, WordPress)</li>
+          <li>Performance &amp; Core Web Vitals</li>
+          <li>SEO foundations &amp; accessibility</li>
+        </ul>
+        <a href="#contact" class="sp-desc-cta" id="sp-desc-cta-2">Start a project →</a>
+      </div>
+    </div>
+
+    <div class="sp-desc" id="sp-desc-3" data-index="3" aria-hidden="true">
+      <div class="sp-desc-inner">
+        <span class="sp-desc-num">04</span>
+        <h3 class="sp-desc-title">Landing Page Design</h3>
+        <p class="sp-desc-body">High-converting landing pages built to a single purpose. Every element earns its place — from the hero to the final CTA.</p>
+        <ul class="sp-desc-list">
+          <li>Conversion-focused layout</li>
+          <li>A/B test-ready structure</li>
+          <li>Copy direction &amp; hierarchy</li>
+          <li>Pixel-perfect dev handoff</li>
+        </ul>
+        <a href="#contact" class="sp-desc-cta" id="sp-desc-cta-3">Start a project →</a>
+      </div>
+    </div>
+
+    <div class="sp-desc" id="sp-desc-4" data-index="4" aria-hidden="true">
+      <div class="sp-desc-inner">
+        <span class="sp-desc-num">05</span>
+        <h3 class="sp-desc-title">E-commerce Development</h3>
+        <p class="sp-desc-body">We design and build online stores that make buying feel effortless — from product discovery to checkout and repeat purchase.</p>
+        <ul class="sp-desc-list">
+          <li>Shopify &amp; custom storefronts</li>
+          <li>Product page optimisation</li>
+          <li>Cart &amp; checkout UX</li>
+          <li>Inventory &amp; payment integration</li>
+        </ul>
+        <a href="#contact" class="sp-desc-cta" id="sp-desc-cta-4">Start a project →</a>
+      </div>
+    </div>
+
+    <div class="sp-desc" id="sp-desc-5" data-index="5" aria-hidden="true">
+      <div class="sp-desc-inner">
+        <span class="sp-desc-num">06</span>
+        <h3 class="sp-desc-title">Motion Graphics</h3>
+        <p class="sp-desc-body">Animation that communicates. We produce motion work for brands, products, and social — from UI micro-interactions to full explainer sequences.</p>
+        <ul class="sp-desc-list">
+          <li>UI micro-animations</li>
+          <li>Brand motion &amp; logo animation</li>
+          <li>Social &amp; ad creatives</li>
+          <li>Explainer &amp; product videos</li>
+        </ul>
+        <a href="#contact" class="sp-desc-cta" id="sp-desc-cta-5">Start a project →</a>
+      </div>
+    </div>
+
+    <div class="sp-desc" id="sp-desc-6" data-index="6" aria-hidden="true">
+      <div class="sp-desc-inner">
+        <span class="sp-desc-num">07</span>
+        <h3 class="sp-desc-title">Custom Project</h3>
+        <p class="sp-desc-body">Got something that doesn't fit a category? Good. We thrive on problems that need first-principles thinking and bespoke solutions.</p>
+        <ul class="sp-desc-list">
+          <li>Scope &amp; brief workshop</li>
+          <li>Cross-discipline collaboration</li>
+          <li>Flexible delivery formats</li>
+          <li>Ongoing retainer options</li>
+        </ul>
+        <a href="#contact" class="sp-desc-cta" id="sp-desc-cta-6">Start a project →</a>
+      </div>
+    </div>
+
+  </div><!-- /sp-right -->
+
+</div><!-- /sp-popup -->
+
+<!-- ════════════════════════════════════════════════
+     SERVICES POPUP — STYLES
+════════════════════════════════════════════════ -->
+<style>
+
+/* ─── Overlay ─── */
+.sp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 8000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.sp-overlay.sp-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ─── Popup shell ─── */
+.sp-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  width: min(92vw, 1060px);
+  height: min(88vh, 660px);
+  background: #0d0d0d;
+  border-radius: 24px;
+  display: flex;
+  overflow: hidden;
+  z-index: 8100;
+  box-shadow: 0 40px 120px rgba(0,0,0,0.7);
+
+  /* Entry state */
+  opacity: 0;
+  scale: 0.94;
+  pointer-events: none;
+  transition:
+    opacity 0.5s  cubic-bezier(0.22, 1, 0.36, 1),
+    scale   0.5s  cubic-bezier(0.22, 1, 0.36, 1);
+}
+.sp-popup.sp-open {
+  opacity: 1;
+  scale: 1;
+  pointer-events: auto;
+}
+
+/* ─── Close button ─── */
+.sp-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: none;
+  color: rgba(255,255,255,0.6);
+  transition:
+    background 0.22s ease,
+    color      0.22s ease,
+    transform  0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+.sp-close svg { width: 16px; height: 16px; }
+.sp-close:hover {
+  background: rgba(255,255,255,0.14);
+  color: #fff;
+  transform: rotate(90deg);
+}
+
+/* ═══════════════════════════════
+   LEFT PANEL — yellow numbered cards
+═══════════════════════════════ */
+.sp-left {
+  width: 46%;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: #0d0d0d;
+  border-right: 1px solid rgba(255,255,255,0.07);
+  overflow: hidden;
+}
+
+.sp-left-header {
+  padding: 36px 32px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+
+.sp-eyebrow {
+  display: block;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  margin-bottom: 8px;
+}
+
+.sp-left-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  letter-spacing: 0.02em;
+  line-height: 0.92;
+  color: #ffffff;
+}
+
+/* ── Card list ── */
+.sp-cards-list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 10px 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+.sp-cards-list::-webkit-scrollbar { width: 4px; }
+.sp-cards-list::-webkit-scrollbar-track { background: transparent; }
+.sp-cards-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+/* ── Individual card ── */
+.sp-card {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 14px 24px 14px 20px;
+  cursor: none;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  position: relative;
+  /* Transition for selected/hover states */
+  transition:
+    background 0.3s  cubic-bezier(0.22,1,0.36,1),
+    padding-left 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+.sp-card:last-child { border-bottom: none; }
+.sp-card:hover { background: rgba(255,255,255,0.03); padding-left: 26px; }
+.sp-card:focus { outline: 2px solid rgba(255,215,0,0.5); outline-offset: -2px; }
+
+/* Active card state */
+.sp-card.sp-card-active {
+  background: rgba(255,214,0,0.06);
+  padding-left: 28px;
+}
+
+/* ── Number badge — YELLOW ── */
+.sp-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+  color: #0d0d0d;
+  background: #FFD600;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+.sp-card:hover .sp-num,
+.sp-card.sp-card-active .sp-num {
+  transform: scale(1.08) rotate(-3deg);
+}
+
+.sp-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.sp-card-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: rgba(255,255,255,0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.22s ease;
+}
+.sp-card:hover .sp-card-name,
+.sp-card.sp-card-active .sp-card-name { color: #ffffff; }
+
+/* "Click here" CTA inside card */
+.sp-card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,214,0,0.55);
+  transition:
+    color   0.25s ease,
+    gap     0.3s  cubic-bezier(0.34,1.56,0.64,1);
+}
+.sp-card-cta svg { width: 11px; height: 11px; flex-shrink: 0; }
+.sp-card:hover .sp-card-cta,
+.sp-card.sp-card-active .sp-card-cta { color: #FFD600; gap: 9px; }
+
+/* Active indicator stripe */
+.sp-card.sp-card-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 20%;
+  bottom: 20%;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: #FFD600;
+}
+
+/* ═══════════════════════════════
+   RIGHT PANEL — red description
+═══════════════════════════════ */
+.sp-right {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: #CF0000;
+}
+
+/* Default state */
+.sp-default {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  transition:
+    opacity   0.35s ease,
+    transform 0.35s cubic-bezier(0.22,1,0.36,1);
+}
+.sp-default.sp-hidden { opacity: 0; transform: scale(0.96); pointer-events: none; }
+
+.sp-default-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 5rem;
+  color: rgba(255,255,255,0.12);
+  line-height: 1;
+}
+.sp-default-hint {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: rgba(255,255,255,0.4);
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* Description panels */
+.sp-desc {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.15) transparent;
+  /* Entry state */
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(18px);
+  transition:
+    opacity   0.42s cubic-bezier(0.22,1,0.36,1),
+    transform 0.42s cubic-bezier(0.22,1,0.36,1);
+}
+.sp-desc::-webkit-scrollbar { width: 4px; }
+.sp-desc::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 4px; }
+
+.sp-desc.sp-desc-active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.sp-desc-inner {
+  padding: 44px 40px 44px 36px;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.sp-desc-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.18em;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 10px;
+  display: block;
+}
+
+.sp-desc-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2rem, 4.5vw, 3.2rem);
+  letter-spacing: 0.01em;
+  line-height: 0.92;
+  color: #ffffff;
+  margin-bottom: 20px;
+}
+
+.sp-desc-body {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(0.9rem, 1.3vw, 1.05rem);
+  font-style: italic;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.82);
+  margin-bottom: 24px;
+}
+
+.sp-desc-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-bottom: 32px;
+  flex: 1;
+}
+.sp-desc-list li {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.7);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sp-desc-list li::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.45);
+  flex-shrink: 0;
+}
+
+.sp-desc-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  color: #CF0000;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 13px 24px;
+  border-radius: 100px;
+  align-self: flex-start;
+  cursor: none;
+  transition:
+    background 0.28s ease,
+    color      0.28s ease,
+    gap        0.35s cubic-bezier(0.34,1.56,0.64,1),
+    transform  0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+.sp-desc-cta:hover {
+  background: #FFD600;
+  color: #000;
+  gap: 12px;
+  transform: translateY(-2px);
+}
+
+/* ═══════════════════════════════
+   RESPONSIVE
+═══════════════════════════════ */
+
+/* Tablet — stack vertically */
+@media (max-width: 768px) {
+  .sp-popup {
+    width: 96vw;
+    height: 90vh;
+    border-radius: 18px;
+    flex-direction: column;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+  }
+  .sp-left {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    max-height: 48%;
+    flex-shrink: 0;
+  }
+  .sp-left-header { padding: 24px 20px 14px; }
+  .sp-right { flex: 1; min-height: 0; }
+  .sp-desc-inner { padding: 28px 24px; }
+  .sp-default { display: none; } /* Skip default on mobile — start with first */
+}
+
+@media (max-width: 480px) {
+  .sp-popup { height: 94vh; border-radius: 14px; }
+  .sp-left  { max-height: 44%; }
+  .sp-card  { padding: 12px 16px; gap: 12px; }
+  .sp-num   { width: 34px; height: 34px; font-size: 0.88rem; }
+  .sp-card-name { font-size: 0.76rem; }
+  .sp-desc-inner { padding: 22px 18px; }
+  .sp-desc-title { font-size: clamp(1.6rem, 7vw, 2.4rem); }
+  .sp-close { top: 12px; right: 12px; }
+  .sp-desc-cta { cursor: pointer; }
+}
+
+/* Touch: restore pointer */
+@media (hover: none) {
+  .sp-card   { cursor: pointer; }
+  .sp-close  { cursor: pointer; }
+  .sp-desc-cta { cursor: pointer; }
+}
+</style>
+
+<!-- ════════════════════════════════════════════════
+     SERVICES POPUP — JAVASCRIPT
+════════════════════════════════════════════════ -->
+<script>
+(function initServicesPopup() {
+  'use strict';
+
+  /* ── Elements ── */
+  var trigger  = document.getElementById('cf-services-trigger');
+  var overlay  = document.getElementById('sp-overlay');
+  var popup    = document.getElementById('sp-popup');
+  var closeBtn = document.getElementById('sp-close');
+  var cursor   = document.getElementById('cursor');
+
+  if (!trigger || !popup || !overlay) return;
+
+  var cards       = Array.from(popup.querySelectorAll('.sp-card'));
+  var descs       = Array.from(popup.querySelectorAll('.sp-desc'));
+  var defaultPane = document.getElementById('sp-default');
+  var activeIndex = -1;
+
+  /* ════════════════════════════════════════════
+     OPEN / CLOSE
+  ════════════════════════════════════════════ */
+  function openPopup() {
+    overlay.classList.add('sp-open');
+    popup.classList.add('sp-open');
+    popup.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    /* Auto-select first on mobile (no default pane) */
+    if (window.innerWidth <= 768) selectService(0);
+    /* Focus close button for a11y */
+    setTimeout(function() { if (closeBtn) closeBtn.focus(); }, 520);
+  }
+
+  function closePopup() {
+    overlay.classList.remove('sp-open');
+    popup.classList.remove('sp-open');
+    popup.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    /* Reset after close animation */
+    setTimeout(function() {
+      selectService(-1); /* deselect all */
+    }, 500);
+  }
+
+  /* ════════════════════════════════════════════
+     SELECT SERVICE
+     Smooth transition: outgoing desc fades down,
+     incoming fades up. Yellow card lights up.
+  ════════════════════════════════════════════ */
+  function selectService(index) {
+    /* Deactivate all cards */
+    cards.forEach(function(c) { c.classList.remove('sp-card-active'); });
+
+    /* Hide all desc panels */
+    descs.forEach(function(d) {
+      d.classList.remove('sp-desc-active');
+      d.setAttribute('aria-hidden', 'true');
+    });
+
+    if (index < 0) {
+      /* Show default pane */
+      if (defaultPane) defaultPane.classList.remove('sp-hidden');
+      activeIndex = -1;
+      return;
+    }
+
+    /* Hide default pane */
+    if (defaultPane) defaultPane.classList.add('sp-hidden');
+
+    /* Activate card */
+    if (cards[index]) cards[index].classList.add('sp-card-active');
+
+    /* Activate desc with a tiny delay so the prev one can start fading */
+    setTimeout(function() {
+      var desc = descs[index];
+      if (desc) {
+        desc.classList.add('sp-desc-active');
+        desc.setAttribute('aria-hidden', 'false');
+        /* Scroll desc to top */
+        desc.scrollTop = 0;
+      }
+    }, activeIndex >= 0 ? 80 : 0);
+
+    activeIndex = index;
+  }
+
+  /* ════════════════════════════════════════════
+     EVENT LISTENERS
+  ════════════════════════════════════════════ */
+
+  /* Open popup when Services button clicked */
+  trigger.addEventListener('click', function(e) {
+    e.preventDefault();
+    openPopup();
+  });
+
+  /* Close on overlay click */
+  overlay.addEventListener('click', closePopup);
+
+  /* Close button */
+  if (closeBtn) closeBtn.addEventListener('click', closePopup);
+
+  /* Escape key */
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closePopup();
+  });
+
+  /* Card click → select service */
+  cards.forEach(function(card) {
+    /* Click */
+    card.addEventListener('click', function() {
+      var idx = parseInt(this.getAttribute('data-index'), 10);
+      selectService(idx);
+    });
+    /* Keyboard enter/space */
+    card.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        var idx = parseInt(this.getAttribute('data-index'), 10);
+        selectService(idx);
+      }
+    });
+  });
+
+  /* "Start a project" CTAs — close popup then navigate */
+  popup.querySelectorAll('.sp-desc-cta').forEach(function(a) {
+    a.addEventListener('click', function() {
+      closePopup();
+    });
+  });
+
+  /* ════════════════════════════════════════════
+     CURSOR WIRING
+  ════════════════════════════════════════════ */
+  popup.querySelectorAll('.sp-card, .sp-close, .sp-desc-cta').forEach(function(el) {
+    el.addEventListener('mouseenter', function() { if (cursor) cursor.classList.add('hover'); });
+    el.addEventListener('mouseleave', function() { if (cursor) cursor.classList.remove('hover'); });
+  });
+
+})();
+</script>
 </body>
 </html>
