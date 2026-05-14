@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For Developers — Design & Deploy Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=Syne:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════
+   RESET & ROOT
+═══════════════════════════════════════════════════════ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --accent:       #FFD600;
+  --accent-2:     #CF0000;
+  --cream:        #f9f5f0;
+  --ink:          #0d0d0d;
+  --card-w:       230px;
+  --card-h:       500px;
+  --radius:       28px;
+  --ease:         cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring:  cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: #000;
+  font-family: 'Syne', sans-serif;
+  cursor: none;
+}
+
+/* ═══════════════════════════════════════════════════════
+   CUSTOM CURSOR
+═══════════════════════════════════════════════════════ */
+#cursor {
+  position: fixed;
+  width: 10px; height: 10px;
+  background: var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: width .25s var(--ease-spring), height .25s var(--ease-spring), opacity .2s ease;
+  mix-blend-mode: difference;
+}
+#cursor.hover { width: 40px; height: 40px; }
+
+/* ═══════════════════════════════════════════════════════
+   BACK LINK
+═══════════════════════════════════════════════════════ */
+.back-link {
+  position: fixed;
+  top: 28px; left: 36px;
+  z-index: 500;
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none;
+  color: rgba(255,255,255,0.6);
+  font-family: 'Syne', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  transition: color .25s ease, gap .3s var(--ease-spring);
+}
+.back-link svg { width: 16px; height: 16px; transition: transform .3s var(--ease-spring); }
+.back-link:hover { color: var(--accent); gap: 14px; }
+.back-link:hover svg { transform: translateX(-3px); }
+
+/* ═══════════════════════════════════════════════════════
+   SECTION SHELL
+═══════════════════════════════════════════════════════ */
+.sl-section {
+  position: relative;
+  width: 100vw; height: 100vh;
+  overflow: hidden;
+  display: flex; align-items: center;
+}
+
+/* ═══════════════════════════════════════════════════════
+   BACKGROUND
+═══════════════════════════════════════════════════════ */
+.sl-bg {
+  position: absolute;
+  inset: -6%;
+  z-index: 0;
+  will-change: transform;
+}
+.sl-bg-img {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  transition: opacity 1.2s ease, transform 8s linear;
+  will-change: opacity, transform;
+}
+.sl-bg-img.active   { opacity: 1; transform: scale(1.06); }
+.sl-bg-img.inactive { opacity: 0; transform: scale(1.0);  }
+
+/* Dark overlay — slightly blue-tinted for code aesthetic */
+.sl-bg-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    110deg,
+    rgba(0,0,0,0.88) 0%,
+    rgba(0,5,20,0.6) 55%,
+    rgba(0,0,0,0.22) 100%
+  );
+  z-index: 1;
+}
+.sl-bg-noise {
+  position: absolute; inset: 0; z-index: 2; opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px;
+}
+.sl-bg-vignette {
+  position: absolute; inset: 0; z-index: 3;
+  background: radial-gradient(ellipse 85% 85% at 58% 50%, transparent 40%, rgba(0,0,0,0.72) 100%);
+}
+
+/* Animated code-rain scanline decorative layer */
+.sl-bg-scanlines {
+  position: absolute; inset: 0; z-index: 4;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent, transparent 3px,
+    rgba(255,255,255,0.012) 3px, rgba(255,255,255,0.012) 4px
+  );
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════════════════ */
+.sl-layout {
+  position: relative; z-index: 10;
+  display: flex; align-items: center;
+  width: 100%; height: 100%;
+  padding: 0 60px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   LEFT PANEL
+═══════════════════════════════════════════════════════ */
+.sl-left {
+  flex: 0 0 42%;
+  display: flex; flex-direction: column; justify-content: center;
+  padding-right: 48px;
+  height: 100%; position: relative;
+  padding-top: 48px;
+  padding-bottom: 48px;
+}
+
+/* Category label */
+.sl-category { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 24px; overflow: hidden; }
+.sl-category-inner {
+  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--accent);
+  transform: translateY(100%); opacity: 0;
+  transition: transform .7s var(--ease), opacity .7s ease;
+  transition-delay: .05s;
+  display: flex; align-items: center; gap: 10px;
+}
+.sl-category-inner::before {
+  content: ''; display: block; width: 24px; height: 1px; background: var(--accent);
+}
+.sl-category-inner.visible { transform: translateY(0); opacity: 1; }
+
+/* Monospace accent chip */
+.sl-chip {
+  display: inline-block;
+  width: fit-content;          /* never stretch full row */
+  max-width: max-content;
+  font-family: 'Syne', monospace;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  background: rgba(255,214,0,0.08);
+  border: 1px solid rgba(255,214,0,0.2);
+  border-radius: 4px;
+  padding: 3px 10px;
+  margin-bottom: 14px;
+  transform: translateY(8px); opacity: 0;
+  transition: transform .6s var(--ease), opacity .6s ease;
+}
+.sl-chip.visible { transform: translateY(0); opacity: 1; }
+
+/* Title */
+.sl-title-wrap { overflow: hidden; margin-bottom: 4px; }
+.sl-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(4rem, 7.5vw, 7.5rem);
+  line-height: 0.9; letter-spacing: 0.01em;
+  color: #fff;
+  transform: translateY(110%); opacity: 0;
+  transition: transform .85s var(--ease), opacity .7s ease;
+  display: block;
+}
+.sl-title.visible { transform: translateY(0); opacity: 1; }
+
+/* Code-style accent on title */
+.sl-title-code {
+  color: var(--accent);
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+}
+
+/* Description */
+.sl-desc {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(0.9rem, 1.3vw, 1.1rem);
+  font-style: italic;
+  line-height: 1.7; color: rgba(255,255,255,0.58);
+  margin-top: 20px; margin-bottom: 28px; max-width: 38ch;
+  transform: translateY(20px); opacity: 0;
+  transition: transform .8s var(--ease), opacity .7s ease;
+}
+.sl-desc.visible { transform: translateY(0); opacity: 1; }
+
+/* Metrics mini-row */
+.sl-metrics {
+  display: flex; gap: 0;
+  margin-bottom: 28px;
+  transform: translateY(14px); opacity: 0;
+  transition: transform .75s var(--ease), opacity .65s ease;
+}
+.sl-metrics.visible { transform: translateY(0); opacity: 1; }
+.sl-metric-item {
+  flex: 1;
+  padding: 12px 16px;
+  border-right: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.03);
+}
+.sl-metric-item:first-child { border-radius: 10px 0 0 10px; }
+.sl-metric-item:last-child  { border-right: none; border-radius: 0 10px 10px 0; }
+.sl-metric-val {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem; letter-spacing: 0.04em;
+  color: var(--accent); display: block; line-height: 1;
+}
+.sl-metric-lbl {
+  font-size: 0.58rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgba(255,255,255,0.35); display: block; margin-top: 3px;
+}
+
+/* CTA */
+.sl-cta-wrap {
+  transform: translateY(14px); opacity: 0;
+  transition: transform .7s var(--ease), opacity .6s ease;
+  display: flex; align-items: center; gap: 16px;
+}
+.sl-cta-wrap.visible { transform: translateY(0); opacity: 1; }
+.sl-cta {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 28px;
+  background: var(--accent); color: #000;
+  font-family: 'Syne', sans-serif; font-size: 0.75rem;
+  font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  text-decoration: none; border-radius: 100px; cursor: none;
+  position: relative; overflow: hidden;
+  transition: transform .35s var(--ease-spring), color .3s ease;
+}
+.sl-cta::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: #fff;
+  transform: translateX(-105%);
+  transition: transform .4s var(--ease);
+  border-radius: inherit;
+}
+.sl-cta:hover { transform: translateY(-2px); color: #000; }
+.sl-cta:hover::before { transform: translateX(0); }
+.sl-cta span { position: relative; z-index: 1; }
+.sl-cta svg  { position: relative; z-index: 1; width: 16px; height: 16px; transition: transform .3s var(--ease-spring); }
+.sl-cta:hover svg { transform: translateX(3px); }
+
+/* Progress */
+.sl-progress-wrap {
+  position: absolute; bottom: 56px; left: 0; width: 80%;
+}
+.sl-progress-label {
+  font-size: 0.58rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(255,255,255,0.28); margin-bottom: 8px;
+}
+.sl-progress-track {
+  width: 100%; height: 2px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;
+}
+.sl-progress-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, rgba(255,214,0,0.35), var(--accent));
+  border-radius: 2px;
+  box-shadow: 0 0 10px rgba(255,214,0,0.5);
+}
+
+/* Indicators */
+.sl-indicators {
+  position: absolute; bottom: 56px; right: 20px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.sl-ind {
+  width: 2px; height: 20px;
+  background: rgba(255,255,255,0.15); border-radius: 2px; overflow: hidden;
+  cursor: none; position: relative;
+}
+.sl-ind::after {
+  content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 0%;
+  background: var(--accent); border-radius: 2px; transition: height .3s ease;
+}
+.sl-ind.active { background: rgba(255,214,0,0.2); height: 36px; }
+.sl-ind.active::after { height: 100%; }
+
+/* ═══════════════════════════════════════════════════════
+   RIGHT CARD STACK
+═══════════════════════════════════════════════════════ */
+.sl-right {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;   /* centre the stack so it doesn't bleed right */
+  padding-right: 20px;
+  padding-left: 20px;
+  position: relative;
+  overflow: hidden;           /* clip cards that fly off-screen */
+}
+
+/* The stack anchor — cards are absolute children of this */
+.sl-cards {
+  position: relative;
+  width: var(--card-w);       /* exactly one card wide — others offset from here */
+  height: var(--card-h);
+  flex-shrink: 0;
+}
+
+.sl-card {
+  position: absolute;          /* all cards stacked at same anchor point */
+  top: 0; left: 0;
+  width: var(--card-w); height: var(--card-h);
+  border-radius: var(--radius); overflow: hidden;
+  cursor: none;
+  will-change: transform, opacity;
+  transition:
+    transform  .9s var(--ease),
+    opacity    .7s ease,
+    box-shadow .6s ease,
+    filter     .6s ease;
+  box-shadow: 0 28px 72px rgba(0,0,0,0.65);
+  transform-origin: bottom center;  /* cards fan from bottom */
+}
+.sl-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(170deg, rgba(255,255,255,0.14) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.65) 100%);
+  z-index: 2; border-radius: inherit;
+}
+.sl-card::after {
+  content: '';
+  position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+  background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%);
+  z-index: 3; transition: left .7s ease; pointer-events: none;
+}
+.sl-card:hover::after { left: 140%; }
+
+/* Active card — yellow accent border */
+.sl-card.active {
+  box-shadow: 0 0 0 1.5px rgba(255,214,0,0.45), 0 40px 100px rgba(0,0,0,0.7);
+  z-index: 20;
+}
+
+.sl-card-img {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  transition: transform .6s ease;
+}
+.sl-card:hover .sl-card-img { transform: scale(1.04); }
+.sl-card-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,8,0.82) 0%, rgba(0,0,0,0.18) 60%, transparent 100%);
+  z-index: 1;
+}
+
+/* Terminal-style card badge */
+.sl-card-badge {
+  position: absolute; top: 16px; left: 16px;
+  background: rgba(255,214,0,0.12);
+  border: 1px solid rgba(255,214,0,0.25);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-family: 'Syne', monospace;
+  font-size: 0.55rem; font-weight: 700;
+  letter-spacing: 0.1em; color: var(--accent);
+  z-index: 4;
+}
+
+.sl-card-content {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 22px 18px 20px; z-index: 4;
+}
+.sl-card-loc {
+  font-size: 0.58rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(255,255,255,0.5); margin-bottom: 5px;
+  display: flex; align-items: center; gap: 6px;
+}
+.sl-card-loc::before { content: ''; display: block; width: 12px; height: 1px; background: rgba(255,255,255,0.35); }
+.sl-card-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.4rem; letter-spacing: 0.03em; line-height: 1; color: #fff;
+}
+.sl-card-num {
+  position: absolute; top: 16px; right: 16px;
+  font-family: 'Bebas Neue', sans-serif; font-size: 0.85rem;
+  letter-spacing: 0.15em; color: rgba(255,255,255,0.3); z-index: 4;
+}
+
+/* ─── Card position states ───
+   Active card is at (0,0). Successive cards fan right + down with
+   decreasing scale. "prev" cards (already seen) sit hidden to the
+   left, ready to slide in from behind when we wrap around.
+   With 6 slides, diff can be 0–5. We map:
+     diff 0 → active
+     diff 1 → next1 (first in fan)
+     diff 2 → next2
+     diff 3 → next3
+     diff 4 → prev-far (nearly invisible, left side)
+     diff 5 → prev (exit left, opacity 0)
+──────────────────────────────────────────────────── */
+.sl-card[data-pos="active"] {
+  transform: translate(0px, 0px) scale(1) rotate(0deg);
+  opacity: 1;
+  filter: none;
+  z-index: 20;
+}
+.sl-card[data-pos="next1"] {
+  transform: translate(18px, 12px) scale(0.91) rotate(3deg);
+  opacity: 0.7;
+  filter: brightness(0.65);
+  z-index: 15;
+}
+.sl-card[data-pos="next2"] {
+  transform: translate(34px, 24px) scale(0.82) rotate(6deg);
+  opacity: 0.45;
+  filter: brightness(0.5);
+  z-index: 10;
+}
+.sl-card[data-pos="next3"] {
+  transform: translate(48px, 36px) scale(0.73) rotate(9deg);
+  opacity: 0.25;
+  filter: brightness(0.38);
+  z-index: 5;
+}
+.sl-card[data-pos="prev-far"] {
+  transform: translate(-180px, 10px) scale(0.85) rotate(-3deg);
+  opacity: 0.08;
+  filter: brightness(0.4);
+  z-index: 2;
+  pointer-events: none;
+}
+.sl-card[data-pos="prev"] {
+  transform: translate(-220px, 0px) scale(0.88) rotate(-4deg);
+  opacity: 0;
+  filter: brightness(0.4);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════════════════ */
+.sl-nav {
+  position: fixed; bottom: 48px; right: 48px; z-index: 100;
+  display: flex; gap: 12px;
+}
+.sl-nav-btn {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  cursor: none; color: rgba(255,255,255,0.65);
+  transition: background .25s ease, color .25s ease, transform .35s var(--ease-spring), border-color .25s ease;
+}
+.sl-nav-btn svg { width: 20px; height: 20px; }
+.sl-nav-btn:hover { background: var(--accent); color: #000; transform: scale(1.08); border-color: var(--accent); }
+
+/* ═══════════════════════════════════════════════════════
+   COUNTER
+═══════════════════════════════════════════════════════ */
+.sl-counter {
+  position: fixed; top: 28px; right: 120px; z-index: 100;
+  font-family: 'Bebas Neue', sans-serif; font-size: 2.8rem;
+  letter-spacing: 0.04em; color: rgba(255,255,255,0.13);
+  display: flex; align-items: baseline; gap: 4px; line-height: 1;
+}
+.sl-counter-current {
+  color: var(--accent); font-size: 3.2rem;
+  transition: opacity .4s ease, transform .4s var(--ease);
+}
+.sl-counter-sep { font-size: 1.4rem; margin: 0 2px; }
+
+/* ═══════════════════════════════════════════════════════
+   PAGE LABEL
+═══════════════════════════════════════════════════════ */
+.sl-page-label {
+  position: fixed; top: 28px; right: 36px; z-index: 100;
+  font-size: 0.6rem; font-weight: 700; letter-spacing: 0.28em;
+  text-transform: uppercase; color: rgba(255,255,255,0.28);
+  display: flex; align-items: center; gap: 8px;
+}
+.sl-page-label::before { content: ''; display: block; width: 18px; height: 1px; background: rgba(255,255,255,0.28); }
+
+/* ═══════════════════════════════════════════════════════
+   REDUCED MOTION
+═══════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .sl-layout { padding: 0 36px; }
+  .sl-left { flex: 0 0 50%; padding-right: 28px; }
+  :root { --card-w: 190px; --card-h: 430px; --radius: 24px; }
+}
+
+@media (max-width: 768px) {
+  html, body { overflow: hidden; }
+  .sl-layout { flex-direction: column; padding: 100px 24px 120px; gap: 28px; align-items: flex-start; overflow-y: auto; }
+  .sl-left { flex: none; padding-right: 0; height: auto; width: 100%; }
+  .sl-right {
+    width: 100%;
+    height: 280px;
+    padding: 0;
+    justify-content: flex-start;
+    overflow: visible;          /* show the fan on mobile */
+  }
+  .sl-cards {
+    width: 160px;
+    height: 260px;
+    margin-left: 20px;
+  }
+  :root { --card-w: 160px; --card-h: 260px; --radius: 18px; }
+
+  /* On mobile: simpler flat fan, smaller offsets */
+  .sl-card[data-pos="active"]   { transform: translate(0,0) scale(1) rotate(0); }
+  .sl-card[data-pos="next1"]    { transform: translate(14px,8px) scale(0.91) rotate(3deg); }
+  .sl-card[data-pos="next2"]    { transform: translate(26px,16px) scale(0.82) rotate(6deg); }
+  .sl-card[data-pos="next3"]    { transform: translate(36px,24px) scale(0.73) rotate(9deg); opacity: 0.2; }
+  .sl-card[data-pos="prev-far"] { transform: translate(-140px,6px) scale(0.85) rotate(-3deg); opacity: 0.05; }
+  .sl-card[data-pos="prev"]     { transform: translate(-180px,0) scale(0.88) rotate(-4deg); opacity: 0; }
+
+  .sl-nav { bottom: 24px; right: 24px; }
+  .sl-counter { bottom: 24px; left: 24px; }
+  .sl-progress-wrap { bottom: 80px; }
+  .sl-indicators { display: none; }
+  .sl-metrics { gap: 0; }
+  .sl-metric-item { padding: 10px 12px; }
+}
+
+@media (hover: none) {
+  body { cursor: auto; }
+  #cursor { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+
+<a href="index.html" class="back-link">
+  <svg viewBox="0 0 20 20" fill="none"><polyline points="13,4 7,10 13,16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="7" y1="10" x2="17" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+  Back
+</a>
+
+<div class="sl-page-label">For Developers</div>
+
+<!-- ═══ SECTION ═══ -->
+<div class="sl-section" id="sl-section">
+
+  <!-- Background -->
+  <div class="sl-bg" id="sl-bg">
+    <div class="sl-bg-img active"   id="sl-bg-a"></div>
+    <div class="sl-bg-img inactive" id="sl-bg-b"></div>
+    <div class="sl-bg-overlay"></div>
+    <div class="sl-bg-noise"></div>
+    <div class="sl-bg-vignette"></div>
+    <div class="sl-bg-scanlines"></div>
+  </div>
+
+  <!-- Layout -->
+  <div class="sl-layout">
+
+    <!-- LEFT -->
+    <div class="sl-left" id="sl-left">
+
+      <div class="sl-category">
+        <span class="sl-category-inner" id="sl-cat">Dev Story</span>
+      </div>
+
+      <span class="sl-chip" id="sl-chip">&lt;/&gt;</span>
+
+      <div>
+        <div class="sl-title-wrap"><span class="sl-title" id="sl-title-0"></span></div>
+        <div class="sl-title-wrap"><span class="sl-title" id="sl-title-1"></span></div>
+        <div class="sl-title-wrap"><span class="sl-title" id="sl-title-2"></span></div>
+      </div>
+
+      <p class="sl-desc" id="sl-desc"></p>
+
+      <!-- Metrics row — key numbers per slide -->
+      <div class="sl-metrics" id="sl-metrics">
+        <div class="sl-metric-item">
+          <span class="sl-metric-val" id="sl-mv0">—</span>
+          <span class="sl-metric-lbl" id="sl-ml0">Metric</span>
+        </div>
+        <div class="sl-metric-item">
+          <span class="sl-metric-val" id="sl-mv1">—</span>
+          <span class="sl-metric-lbl" id="sl-ml1">Metric</span>
+        </div>
+        <div class="sl-metric-item">
+          <span class="sl-metric-val" id="sl-mv2">—</span>
+          <span class="sl-metric-lbl" id="sl-ml2">Metric</span>
+        </div>
+      </div>
+
+      <div class="sl-cta-wrap" id="sl-cta-wrap">
+        <a href="#" class="sl-cta" id="sl-cta">
+          <span id="sl-cta-label">Start your project</span>
+          <svg viewBox="0 0 20 20" fill="none"><line x1="3" y1="10" x2="17" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><polyline points="11,4 17,10 11,16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <!-- Progress -->
+      <div class="sl-progress-wrap">
+        <div class="sl-progress-label">Auto-advancing</div>
+        <div class="sl-progress-track">
+          <div class="sl-progress-fill" id="sl-progress"></div>
+        </div>
+      </div>
+
+      <div class="sl-indicators" id="sl-indicators"></div>
+
+    </div><!-- /sl-left -->
+
+    <!-- RIGHT cards -->
+    <div class="sl-right">
+      <div class="sl-cards" id="sl-cards"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Nav -->
+<div class="sl-nav">
+  <button class="sl-nav-btn" id="sl-prev" aria-label="Previous">
+    <svg viewBox="0 0 20 20" fill="none"><polyline points="13,4 7,10 13,16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <button class="sl-nav-btn" id="sl-next" aria-label="Next">
+    <svg viewBox="0 0 20 20" fill="none"><polyline points="7,4 13,10 7,16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+</div>
+
+<!-- Counter -->
+<div class="sl-counter">
+  <span class="sl-counter-current" id="sl-num">01</span>
+  <span class="sl-counter-sep">/</span>
+  <span id="sl-total">06</span>
+</div>
+
+<script>
+'use strict';
+
+/* ══════════════════════════════════════════════════════
+   DATA — 6 Developer-focused slides
+══════════════════════════════════════════════════════ */
+const SLIDES = [
+  {
+    titleLines:  ['Performance', 'First,', 'Always'],
+    category:    'Web Performance',
+    chip:        '&lt;speed/&gt;',
+    desc:        'We obsess over every millisecond. Core Web Vitals aren\'t compliance checkboxes — they are the fundamental contract between your product and its users.',
+    metrics:     [['<1.2s', 'LCP Score'], ['0.05', 'CLS Score'], ['18ms', 'FID Score']],
+    cta:         'See Benchmarks',
+    image:       'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1800&q=80',
+    cardThumb:   'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=70',
+    badge:       'PERF',
+    cardLoc:     'Web Performance',
+  },
+  {
+    titleLines:  ['Code That', 'Ships on', 'Schedule'],
+    category:    'Development Velocity',
+    chip:        '&lt;ship/&gt;',
+    desc:        'Eight weeks from brief to production. We work in tight, documented sprints with real-time handoffs — so your stakeholders are never waiting, wondering.',
+    metrics:     [['8wk', 'Avg. Launch'], ['99.9%', 'Uptime SLA'], ['100%', 'On Schedule']],
+    cta:         'View Timeline',
+    image:       'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1800&q=80',
+    cardThumb:   'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&q=70',
+    badge:       'DEV',
+    cardLoc:     'Dev Velocity',
+  },
+  {
+    titleLines:  ['Headless,', 'Scalable,', 'Future-Proof'],
+    category:    'Architecture',
+    chip:        '&lt;arch/&gt;',
+    desc:        'We build on modern stacks that won\'t trap you. JAMstack, headless CMS, edge rendering — architecture decisions that age like fine infrastructure, not legacy debt.',
+    metrics:     [['Edge', 'Deployment'], ['CDN', 'Global Cache'], ['0ms', 'TTFB Target']],
+    cta:         'Explore Stack',
+    image:       'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1800&q=80',
+    cardThumb:   'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&q=70',
+    badge:       'ARCH',
+    cardLoc:     'Architecture',
+  },
+  {
+    titleLines:  ['Accessible', 'by', 'Default'],
+    category:    'Web Accessibility',
+    chip:        '&lt;a11y/&gt;',
+    desc:        'WCAG 2.2 AA compliance isn\'t a last-minute checklist. It\'s embedded in every component from the first sprint — because inclusive products reach more people.',
+    metrics:     [['AA', 'WCAG Level'], ['100', 'A11y Score'], ['100%', 'Keyboard Nav']],
+    cta:         'Read Our Standards',
+    image:       'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1800&q=80',
+    cardThumb:   'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&q=70',
+    badge:       'A11Y',
+    cardLoc:     'Accessibility',
+  },
+  {
+    titleLines:  ['E-commerce', 'At Full', 'Speed'],
+    category:    'E-commerce Development',
+    chip:        '&lt;shop/&gt;',
+    desc:        'From Shopify storefronts to custom checkout flows — we build stores that convert. Every millisecond of load time and every pixel of the cart UX is optimised.',
+    metrics:     [['3.1×', 'Conv. Uplift'], ['-67%', 'Load Time'], ['+42%', 'Revenue']],
+    cta:         'See Case Studies',
+    image:       'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1800&q=80',
+    cardThumb:   'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=600&q=70',
+    badge:       'SHOP',
+    cardLoc:     'E-commerce',
+  },
+  {
+    titleLines:  ['API-First', 'Everything', 'Connects'],
+    category:    'Integration & APIs',
+    chip:        '&lt;api/&gt;',
+    desc:        'REST, GraphQL, webhooks, and third-party integrations built to spec. We speak every protocol your stack demands and document every endpoint we ship.',
+    metrics:     [['REST', '+ GraphQL'], ['100%', 'Documented'], ['<50ms', 'Response']],
+    cta:         'Explore Integrations',
+    image:       'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1800&q=80',
+    cardThumb:   'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&q=70',
+    badge:       'API',
+    cardLoc:     'Integrations',
+  },
+];
+
+/* ══════════════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════════════ */
+let currentIdx = 0;
+let isTransitioning = false;
+let timerStart = null;
+let timerRaf = null;
+let pausedAt = 0;
+let isPaused = false;
+const DURATION = 6000;
+
+/* ══════════════════════════════════════════════════════
+   DOM
+══════════════════════════════════════════════════════ */
+const bgA     = document.getElementById('sl-bg-a');
+const bgB     = document.getElementById('sl-bg-b');
+const bgEl    = document.getElementById('sl-bg');
+const cardsEl = document.getElementById('sl-cards');
+const catEl   = document.getElementById('sl-cat');
+const chipEl  = document.getElementById('sl-chip');
+const tEls    = [0,1,2].map(i => document.getElementById(`sl-title-${i}`));
+const descEl  = document.getElementById('sl-desc');
+const mVals   = [0,1,2].map(i => document.getElementById(`sl-mv${i}`));
+const mLbls   = [0,1,2].map(i => document.getElementById(`sl-ml${i}`));
+const metricW = document.getElementById('sl-metrics');
+const ctaWrap = document.getElementById('sl-cta-wrap');
+const ctaLbl  = document.getElementById('sl-cta-label');
+const progress= document.getElementById('sl-progress');
+const numEl   = document.getElementById('sl-num');
+const totalEl = document.getElementById('sl-total');
+const indWrap = document.getElementById('sl-indicators');
+const section = document.getElementById('sl-section');
+
+totalEl.textContent = String(SLIDES.length).padStart(2,'0');
+
+/* ══════════════════════════════════════════════════════
+   BUILD CARDS
+══════════════════════════════════════════════════════ */
+function buildCards() {
+  cardsEl.innerHTML = '';
+  SLIDES.forEach((s, i) => {
+    const c = document.createElement('div');
+    c.className = 'sl-card';
+    c.dataset.index = i;
+    c.innerHTML = `
+      <div class="sl-card-img" style="background-image:url('${s.cardThumb}')"></div>
+      <div class="sl-card-overlay"></div>
+      <span class="sl-card-badge">${s.badge}</span>
+      <span class="sl-card-num">${String(i+1).padStart(2,'0')}</span>
+      <div class="sl-card-content">
+        <div class="sl-card-loc">${s.cardLoc}</div>
+        <div class="sl-card-title">${s.titleLines[0]}</div>
+      </div>`;
+    c.addEventListener('click', () => { if (i !== currentIdx) goTo(i); });
+    cardsEl.appendChild(c);
+  });
+}
+
+function buildIndicators() {
+  indWrap.innerHTML = '';
+  SLIDES.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'sl-ind' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => goTo(i));
+    indWrap.appendChild(d);
+  });
+}
+
+/* ══════════════════════════════════════════════════════
+   CARD POSITIONS
+══════════════════════════════════════════════════════ */
+function setCardPositions(idx) {
+  const cards = cardsEl.querySelectorAll('.sl-card');
+  const total = SLIDES.length;
+  cards.forEach(card => {
+    const i    = parseInt(card.dataset.index);
+    const diff = (i - idx + total) % total;
+    card.classList.remove('active');
+    if      (diff === 0) { card.dataset.pos = 'active';   card.classList.add('active'); }
+    else if (diff === 1) { card.dataset.pos = 'next1'; }
+    else if (diff === 2) { card.dataset.pos = 'next2'; }
+    else if (diff === 3) { card.dataset.pos = 'next3'; }
+    else if (diff === 4) { card.dataset.pos = 'prev-far'; }
+    else                 { card.dataset.pos = 'prev'; }
+  });
+}
+
+/* ══════════════════════════════════════════════════════
+   BACKGROUND
+══════════════════════════════════════════════════════ */
+let bgAactive = true;
+function setBackground(url) {
+  if (bgAactive) {
+    bgB.style.backgroundImage = `url('${url}')`;
+    bgA.classList.replace('active','inactive');
+    bgB.classList.replace('inactive','active');
+  } else {
+    bgA.style.backgroundImage = `url('${url}')`;
+    bgB.classList.replace('active','inactive');
+    bgA.classList.replace('inactive','active');
+  }
+  bgAactive = !bgAactive;
+}
+
+/* ══════════════════════════════════════════════════════
+   TEXT REVEAL
+══════════════════════════════════════════════════════ */
+const textEls  = [catEl, chipEl, ...tEls, descEl, metricW, ctaWrap];
+const tDelays  = [0, 30, 60, 130, 200, 310, 420, 520];
+
+function hideText() {
+  textEls.forEach(el => el.classList.remove('visible'));
+}
+
+function revealText(s) {
+  catEl.textContent  = s.category;
+  chipEl.innerHTML   = s.chip;
+
+  tEls.forEach((el, i) => {
+    el.textContent = s.titleLines[i] || '';
+    el.style.display = s.titleLines[i] ? 'block' : 'none';
+  });
+  descEl.textContent = s.desc;
+  s.metrics.forEach(([val, lbl], i) => {
+    if (mVals[i]) mVals[i].textContent = val;
+    if (mLbls[i]) mLbls[i].textContent = lbl;
+  });
+  // CTA is always the same global label
+  ctaLbl.textContent = 'Start your project';
+
+  textEls.forEach((el, i) => {
+    setTimeout(() => el.classList.add('visible'), tDelays[i]);
+  });
+}
+
+/* ══════════════════════════════════════════════════════
+   COUNTER + INDICATORS
+══════════════════════════════════════════════════════ */
+function updateCounter(idx) {
+  numEl.style.cssText = 'opacity:0;transform:translateY(-10px);transition:opacity .4s ease,transform .4s var(--ease)';
+  setTimeout(() => {
+    numEl.textContent = String(idx+1).padStart(2,'0');
+    numEl.style.cssText = 'opacity:1;transform:translateY(0);transition:opacity .4s ease,transform .4s var(--ease)';
+  }, 200);
+}
+function updateIndicators(idx) {
+  indWrap.querySelectorAll('.sl-ind').forEach((d,i) => d.classList.toggle('active', i === idx));
+}
+
+/* ══════════════════════════════════════════════════════
+   PROGRESS
+══════════════════════════════════════════════════════ */
+function startProgress() {
+  cancelAnimationFrame(timerRaf);
+  timerStart = performance.now();
+  pausedAt = 0;
+  function tick(now) {
+    if (isPaused) return;
+    const pct = Math.min((now - timerStart + pausedAt) / DURATION, 1);
+    progress.style.width = (pct * 100) + '%';
+    if (pct >= 1) goTo((currentIdx + 1) % SLIDES.length);
+    else timerRaf = requestAnimationFrame(tick);
+  }
+  timerRaf = requestAnimationFrame(tick);
+}
+function pauseProgress() {
+  if (isPaused) return;
+  isPaused = true;
+  pausedAt += performance.now() - timerStart;
+  cancelAnimationFrame(timerRaf);
+}
+function resumeProgress() {
+  if (!isPaused) return;
+  isPaused = false;
+  timerStart = performance.now();
+  function tick(now) {
+    if (isPaused) return;
+    const pct = Math.min((now - timerStart + pausedAt) / DURATION, 1);
+    progress.style.width = (pct * 100) + '%';
+    if (pct >= 1) goTo((currentIdx + 1) % SLIDES.length);
+    else timerRaf = requestAnimationFrame(tick);
+  }
+  timerRaf = requestAnimationFrame(tick);
+}
+
+/* ══════════════════════════════════════════════════════
+   TRANSITION
+══════════════════════════════════════════════════════ */
+function goTo(idx, instant) {
+  if (isTransitioning && !instant) return;
+  if (idx === currentIdx && !instant) return;
+  isTransitioning = true;
+  currentIdx = idx;
+  const s = SLIDES[idx];
+
+  hideText();
+  setTimeout(() => setBackground(s.image), 80);
+  setTimeout(() => setCardPositions(idx), 50);
+  setTimeout(() => revealText(s), 420);
+  updateCounter(idx);
+  updateIndicators(idx);
+  progress.style.width = '0%';
+  setTimeout(() => startProgress(), 100);
+  setTimeout(() => { isTransitioning = false; }, 1000);
+}
+
+/* ══════════════════════════════════════════════════════
+   PARALLAX
+══════════════════════════════════════════════════════ */
+let mx = 0, my = 0, bgX = 0, bgY = 0, lX = 0, lY = 0;
+document.addEventListener('mousemove', e => {
+  const cx = window.innerWidth/2, cy = window.innerHeight/2;
+  mx = (e.clientX - cx)/cx;
+  my = (e.clientY - cy)/cy;
+});
+(function parTick() {
+  bgX += (mx * -12 - bgX) * 0.06;
+  bgY += (my * -8  - bgY) * 0.06;
+  lX  += (mx * 6   - lX)  * 0.05;
+  lY  += (my * 4   - lY)  * 0.05;
+  bgEl.style.transform = `translate(${bgX}px,${bgY}px)`;
+  document.getElementById('sl-left').style.transform = `translate(${lX}px,${lY}px)`;
+  requestAnimationFrame(parTick);
+})();
+
+/* ══════════════════════════════════════════════════════
+   CURSOR
+══════════════════════════════════════════════════════ */
+const cursor = document.getElementById('cursor');
+let cX = -100, cY = -100, rX = -100, rY = -100;
+document.addEventListener('mousemove', e => { rX = e.clientX; rY = e.clientY; });
+document.querySelectorAll('.sl-card,.sl-nav-btn,.back-link,.sl-cta,.sl-ind').forEach(el => {
+  el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+  el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+});
+(function cTick() {
+  cX += (rX - cX) * 0.14;
+  cY += (rY - cY) * 0.14;
+  cursor.style.left = cX + 'px';
+  cursor.style.top  = cY + 'px';
+  requestAnimationFrame(cTick);
+})();
+
+/* ══════════════════════════════════════════════════════
+   EVENTS
+══════════════════════════════════════════════════════ */
+section.addEventListener('mouseenter', pauseProgress);
+section.addEventListener('mouseleave', resumeProgress);
+document.getElementById('sl-prev').addEventListener('click', () => goTo((currentIdx-1+SLIDES.length)%SLIDES.length));
+document.getElementById('sl-next').addEventListener('click', () => goTo((currentIdx+1)%SLIDES.length));
+document.addEventListener('keydown', e => {
+  if (e.key==='ArrowRight'||e.key==='ArrowDown') goTo((currentIdx+1)%SLIDES.length);
+  if (e.key==='ArrowLeft' ||e.key==='ArrowUp')   goTo((currentIdx-1+SLIDES.length)%SLIDES.length);
+});
+let tSX = 0;
+section.addEventListener('touchstart', e => { tSX = e.touches[0].clientX; }, { passive:true });
+section.addEventListener('touchend',   e => {
+  const dx = e.changedTouches[0].clientX - tSX;
+  if (Math.abs(dx) > 40) goTo(dx < 0 ? (currentIdx+1)%SLIDES.length : (currentIdx-1+SLIDES.length)%SLIDES.length);
+});
+
+/* ══════════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════════ */
+buildCards();
+buildIndicators();
+bgA.style.backgroundImage = `url('${SLIDES[0].image}')`;
+bgA.classList.add('active');
+setTimeout(() => goTo(0, true), 100);
+</script>
+</body>
+</html>
