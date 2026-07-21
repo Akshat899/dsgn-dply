@@ -13,11 +13,11 @@
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-  --accent: #F7F2EA;
-  --accent-2: #C61D2D;
-  --highlight: #C61D2D;
-  --ink: #080808;
-  --cream: #F7F2EA;
+  --accent:       #F7F2EA;
+  --accent-2:     #C61D2D;
+  --cream:        #F7F2EA;
+  --ink:          #080808;
+  --highlight:    #D8B46A;
   --card-w:       230px;
   --card-h:       500px;
   --radius:       28px;
@@ -148,8 +148,6 @@ html, body {
   display: flex; flex-direction: column; justify-content: center;
   padding-right: 48px;
   height: 100%; position: relative;
-  padding-top: 48px;
-  padding-bottom: 48px;
 }
 
 /* Category label */
@@ -177,8 +175,8 @@ html, body {
   font-weight: 700;
   letter-spacing: 0.1em;
   color: var(--accent);
-  background: rgba(255,214,0,0.08);
-  border: 1px solid rgba(255,214,0,0.2);
+  background: rgba(198,29,45,0.10);
+  border: 1px solid rgba(198,29,45,0.25);
   border-radius: 4px;
   padding: 3px 10px;
   margin-bottom: 14px;
@@ -250,6 +248,8 @@ html, body {
   transform: translateY(14px); opacity: 0;
   transition: transform .7s var(--ease), opacity .6s ease;
   display: flex; align-items: center; gap: 16px;
+  margin-top: 12px;
+  margin-bottom: 72px;
 }
 .sl-cta-wrap.visible { transform: translateY(0); opacity: 1; }
 .sl-cta {
@@ -553,7 +553,7 @@ html, body {
   .sl-card[data-pos="prev"]     { transform: translate(-180px,0) scale(0.88) rotate(-4deg); opacity: 0; }
 
   .sl-nav { bottom: 24px; right: 24px; }
-  .sl-counter { bottom: 24px; left: 24px; }
+  .sl-counter { top: auto; right: auto; bottom: 24px; left: 24px; }
   .sl-progress-wrap { bottom: 80px; }
   .sl-indicators { display: none; }
   .sl-metrics { gap: 0; }
@@ -575,7 +575,7 @@ html, body {
   Back
 </a>
 
-<div class="sl-page-label">For Developers</div>
+<div class="sl-page-label">For Designers</div>
 
 <!-- ═══ SECTION ═══ -->
 <div class="sl-section" id="sl-section">
@@ -678,76 +678,76 @@ html, body {
 ══════════════════════════════════════════════════════ */
 const SLIDES = [
   {
-    titleLines:  ['Performance', 'First,', 'Always'],
-    category:    'Web Performance',
-    chip:        '&lt;speed/&gt;',
-    desc:        'We obsess over every millisecond. Core Web Vitals aren\'t compliance checkboxes — they are the fundamental contract between your product and its users.',
-    metrics:     [['<1.2s', 'LCP Score'], ['0.05', 'CLS Score'], ['18ms', 'FID Score']],
-    cta:         'See Benchmarks',
-    image:       'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1800&q=80',
-    cardThumb:   'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=70',
-    badge:       'PERF',
-    cardLoc:     'Web Performance',
+    titleLines: ['Design That', 'Moves', 'Markets'],
+    category: 'Brand Strategy',
+    chip: 'GRID',
+    desc: 'We build visual identities that create recognition, trust, and measurable business momentum across every touchpoint.',
+    metrics: [['250+', 'Brands Built'], ['4.8×', 'Recall Lift'], ['92%', 'Retention']],
+    cta: 'View Our Work',
+    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1800&q=80',
+    cardThumb: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&q=70',
+    badge: 'BRAND',
+    cardLoc: 'Brand Strategy',
   },
   {
-    titleLines:  ['Code That', 'Ships on', 'Schedule'],
-    category:    'Development Velocity',
-    chip:        '&lt;ship/&gt;',
-    desc:        'Eight weeks from brief to production. We work in tight, documented sprints with real-time handoffs — so your stakeholders are never waiting, wondering.',
-    metrics:     [['8wk', 'Avg. Launch'], ['99.9%', 'Uptime SLA'], ['100%', 'On Schedule']],
-    cta:         'View Timeline',
-    image:       'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1800&q=80',
-    cardThumb:   'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&q=70',
-    badge:       'DEV',
-    cardLoc:     'Dev Velocity',
+    titleLines: ['Identity', 'With', 'Intent'],
+    category: 'Logo & Brand Systems',
+    chip: 'TYPE',
+    desc: 'Every logo, typeface, and color choice is crafted with strategic purpose and designed to scale beautifully.',
+    metrics: [['100%', 'Custom'], ['Global', 'Usage'], ['Full', 'Systems']],
+    cta: 'Explore Identity',
+    image: 'https://images.unsplash.com/photo-1523726491678-bf852e717f6a?w=1800&q=80',
+    cardThumb: 'https://images.unsplash.com/photo-1523726491678-bf852e717f6a?w=600&q=70',
+    badge: 'IDENTITY',
+    cardLoc: 'Brand Systems',
   },
   {
-    titleLines:  ['Headless,', 'Scalable,', 'Future-Proof'],
-    category:    'Architecture',
-    chip:        '&lt;arch/&gt;',
-    desc:        'We build on modern stacks that won\'t trap you. JAMstack, headless CMS, edge rendering — architecture decisions that age like fine infrastructure, not legacy debt.',
-    metrics:     [['Edge', 'Deployment'], ['CDN', 'Global Cache'], ['0ms', 'TTFB Target']],
-    cta:         'Explore Stack',
-    image:       'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1800&q=80',
-    cardThumb:   'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&q=70',
-    badge:       'ARCH',
-    cardLoc:     'Architecture',
+    titleLines: ['Packaging', 'That', 'Sells'],
+    category: 'Packaging Design',
+    chip: 'FORM',
+    desc: 'Shelf presence engineered through storytelling, structure, and visual hierarchy that drives purchase decisions.',
+    metrics: [['3.4×', 'Visibility'], ['28%', 'Sales Lift'], ['Retail', 'Ready']],
+    cta: 'See Packaging',
+    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1800&q=80',
+    cardThumb: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&q=70',
+    badge: 'PACK',
+    cardLoc: 'Packaging',
   },
   {
-    titleLines:  ['Accessible', 'by', 'Default'],
-    category:    'Web Accessibility',
-    chip:        '&lt;a11y/&gt;',
-    desc:        'WCAG 2.2 AA compliance isn\'t a last-minute checklist. It\'s embedded in every component from the first sprint — because inclusive products reach more people.',
-    metrics:     [['AA', 'WCAG Level'], ['100', 'A11y Score'], ['100%', 'Keyboard Nav']],
-    cta:         'Read Our Standards',
-    image:       'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1800&q=80',
-    cardThumb:   'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&q=70',
-    badge:       'A11Y',
-    cardLoc:     'Accessibility',
+    titleLines: ['Social', 'Content That', 'Converts'],
+    category: 'Marketing Design',
+    chip: 'COLOR',
+    desc: 'Campaign assets designed to stop the scroll and turn attention into meaningful engagement.',
+    metrics: [['5×', 'Engagement'], ['24h', 'Turnaround'], ['Multi', 'Format']],
+    cta: 'View Campaigns',
+    image: 'https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=1800&q=80',
+    cardThumb: 'https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=600&q=70',
+    badge: 'SOCIAL',
+    cardLoc: 'Marketing',
   },
   {
-    titleLines:  ['E-commerce', 'At Full', 'Speed'],
-    category:    'E-commerce Development',
-    chip:        '&lt;shop/&gt;',
-    desc:        'From Shopify storefronts to custom checkout flows — we build stores that convert. Every millisecond of load time and every pixel of the cart UX is optimised.',
-    metrics:     [['3.1×', 'Conv. Uplift'], ['-67%', 'Load Time'], ['+42%', 'Revenue']],
-    cta:         'See Case Studies',
-    image:       'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1800&q=80',
-    cardThumb:   'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=600&q=70',
-    badge:       'SHOP',
-    cardLoc:     'E-commerce',
+    titleLines: ['Presentations', 'That', 'Persuade'],
+    category: 'Pitch Deck Design',
+    chip: 'STORY',
+    desc: 'Investor decks and corporate presentations designed for clarity, confidence, and conversion.',
+    metrics: [['$12M+', 'Raised'], ['48h', 'Delivery'], ['Boardroom', 'Ready']],
+    cta: 'See Decks',
+    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1800&q=80',
+    cardThumb: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&q=70',
+    badge: 'DECK',
+    cardLoc: 'Pitch Decks',
   },
   {
-    titleLines:  ['API-First', 'Everything', 'Connects'],
-    category:    'Integration & APIs',
-    chip:        '&lt;api/&gt;',
-    desc:        'REST, GraphQL, webhooks, and third-party integrations built to spec. We speak every protocol your stack demands and document every endpoint we ship.',
-    metrics:     [['REST', '+ GraphQL'], ['100%', 'Documented'], ['<50ms', 'Response']],
-    cta:         'Explore Integrations',
-    image:       'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1800&q=80',
-    cardThumb:   'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&q=70',
-    badge:       'API',
-    cardLoc:     'Integrations',
+    titleLines: ['Motion', 'Gives Design', 'Life'],
+    category: 'Motion Graphics',
+    chip: 'MOTION',
+    desc: 'Animation and micro-interactions that transform static design into memorable brand experiences.',
+    metrics: [['60fps', 'Animation'], ['Cross', 'Platform'], ['Story', 'Driven']],
+    cta: 'Watch Motion',
+    image: 'https://images.unsplash.com/photo-1572044162444-ad60f128bdea?w=1800&q=80',
+    cardThumb: 'https://images.unsplash.com/photo-1572044162444-ad60f128bdea?w=600&q=70',
+    badge: 'MOTION',
+    cardLoc: 'Motion Graphics',
   },
 ];
 
@@ -879,7 +879,7 @@ function revealText(s) {
     if (mLbls[i]) mLbls[i].textContent = lbl;
   });
   // CTA is always the same global label
-  ctaLbl.textContent = 'Start your project';
+  ctaLbl.textContent = s.cta;
 
   textEls.forEach((el, i) => {
     setTimeout(() => el.classList.add('visible'), tDelays[i]);
